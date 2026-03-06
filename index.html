@@ -114,7 +114,7 @@
         .video-card.portrait { width: calc(var(--v-height) * 0.5625); }
         .video-card.landscape { width: calc(var(--v-height) * 1.7777); }
         .video-card.four-three { width: calc(var(--v-height) * 1.3333); }
-        .video-card.three-four { width: calc(var(--v-height) * 0.75); } /* 新增 3:4 比例 */
+        .video-card.three-four { width: calc(var(--v-height) * 0.75); }
 
         .video-frame {
             position: relative;
@@ -312,8 +312,8 @@
         <div class="section-header"><div class="line"></div><h2>时尚视觉视频 / FASHION VIDEO (5)</h2><div class="line"></div></div>
         <div class="horizontal-scroll">
             <script>
-                // GitHub 资源根目录
-                const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/MoCavendish/momowebpage/main/images/";
+                // 使用 jsDelivr CDN 加速 GitHub 资源
+                const CDN_BASE = "https://cdn.jsdelivr.net/gh/MoCavendish/momowebpage@main/images/";
 
                 const fashionVideos = [
                     "https://permalink.dogevideo.com/player/get.m3u8?vcode=07e08b5c4a577628&userId=14748&flsign=815c0f8de1d44441f2ea259dd448fa87&ext=.m3u8",
@@ -324,11 +324,11 @@
                 ];
 
                 const fashionPosters = [
-                    GITHUB_RAW_BASE + "S1.jpg",
-                    GITHUB_RAW_BASE + "S2.jpg",
-                    GITHUB_RAW_BASE + "S3.jpg",
-                    GITHUB_RAW_BASE + "S4.jpg",
-                    GITHUB_RAW_BASE + "S5.jpg"
+                    CDN_BASE + "S1.jpg",
+                    CDN_BASE + "S2.jpg",
+                    CDN_BASE + "S3.jpg",
+                    CDN_BASE + "S4.jpg",
+                    CDN_BASE + "S5.jpg"
                 ];
 
                 fashionVideos.forEach((src, index) => {
@@ -355,7 +355,7 @@
                 <script>
                     const imgs = [];
                     for(let i=1; i<=10; i++) {
-                        imgs.push(GITHUB_RAW_BASE + `P${i}.jpg`);
+                        imgs.push(CDN_BASE + `P${i}.jpg`);
                     }
                     
                     [...imgs, ...imgs].forEach(src => {
@@ -377,11 +377,11 @@
             <script>
                 const aiVideoPlaceholder = "https://permalink.dogevideo.com/player/get.m3u8?vcode=07e08b5c4a577628&userId=14748&flsign=815c0f8de1d44441f2ea259dd448fa87&ext=.m3u8";
                 for(let i=1; i<=4; i++) {
-                    let aiPoster = GITHUB_RAW_BASE + `S1.jpg`; 
+                    let aiPoster = CDN_BASE + `S1.jpg`; 
                     document.write(`
                         <div class="video-card portrait">
                             <div class="video-frame" onclick="openVideoLightbox('${aiVideoPlaceholder}')">
-                                <img src="${aiPoster}" alt="Poster" onerror="this.src='${GITHUB_RAW_BASE}S1.jpg'">
+                                <img src="${aiPoster}" alt="Poster" onerror="this.src='${CDN_BASE}S1.jpg'">
                                 <div class="play-overlay"><i data-lucide="play" fill="currentColor"></i></div>
                             </div>
                             <div class="video-meta">
@@ -408,20 +408,18 @@
                 ];
                 
                 const productPosters = [
-                    GITHUB_RAW_BASE + "C1.jpg",
-                    GITHUB_RAW_BASE + "C2.jpg",
-                    GITHUB_RAW_BASE + "C3.jpg",
-                    GITHUB_RAW_BASE + "C4.jpg"
+                    CDN_BASE + "C1.jpg",
+                    CDN_BASE + "C2.jpg",
+                    CDN_BASE + "C3.jpg",
+                    CDN_BASE + "C4.jpg"
                 ];
 
-                // 修改布局逻辑：最后一个改为 3:4 (three-four)
                 const productLayout = ['four-three', 'portrait', 'four-three', 'three-four'];
                 
                 productVideos.forEach((src, index) => {
                     const type = productLayout[index];
                     const poster = productPosters[index];
                     
-                    // 根据类型决定文本描述
                     let ratio = "16:9";
                     if (type === 'portrait') ratio = "9:16";
                     if (type === 'three-four') ratio = "3:4";
