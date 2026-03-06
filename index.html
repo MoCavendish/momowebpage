@@ -84,7 +84,13 @@
             margin-bottom: -15px; 
             scroll-snap-type: x mandatory;
             -webkit-overflow-scrolling: touch;
-            justify-content: flex-start;
+            justify-content: center;
+        }
+
+        @media (max-width: 1600px) {
+            .horizontal-scroll {
+                justify-content: flex-start;
+            }
         }
 
         .horizontal-scroll::-webkit-scrollbar { 
@@ -105,10 +111,10 @@
         }
 
         .video-card { flex-shrink: 0; scroll-snap-align: start; }
-        /* 响应式宽度计算 */
         .video-card.portrait { width: calc(var(--v-height) * 0.5625); }
         .video-card.landscape { width: calc(var(--v-height) * 1.7777); }
-        .video-card.three-four { width: calc(var(--v-height) * 0.75); }
+        .video-card.four-three { width: calc(var(--v-height) * 1.3333); }
+        .video-card.three-four { width: calc(var(--v-height) * 0.75); } /* 新增 3:4 比例 */
 
         .video-frame {
             position: relative;
@@ -122,14 +128,11 @@
             cursor: pointer;
         }
 
-        video { 
+        .video-frame img { 
             width: 100%; height: 100%; object-fit: cover; display: block; 
-            background: #000;
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        
-        video:not(.is-playing)::-webkit-media-controls {
-            display: none !important;
-        }
+        .video-frame:hover img { transform: scale(1.05); }
 
         .play-overlay {
             position: absolute;
@@ -144,15 +147,34 @@
             transition: var(--transition);
             z-index: 10;
             pointer-events: none;
-            opacity: 1;
         }
-        .video-frame:hover .play-overlay {
-            background: rgba(212, 175, 55, 0.4);
-            transform: translate(-50%, -50%) scale(1.1);
+
+        #video-lightbox {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.98);
+            z-index: 9999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(15px);
         }
-        .video-frame.is-active .play-overlay {
-            opacity: 0;
-            visibility: hidden;
+        #video-lightbox.active { display: flex; }
+        .close-video {
+            position: absolute;
+            top: 30px; right: 30px;
+            color: white;
+            cursor: pointer;
+            z-index: 10000;
+            transition: transform 0.3s;
+        }
+        .close-video:hover { transform: scale(1.1); color: var(--primary); }
+        #lightbox-video {
+            max-width: 95%;
+            max-height: 85vh;
+            outline: none;
+            box-shadow: 0 0 50px rgba(0,0,0,1);
+            background: #000;
         }
 
         .video-meta {
@@ -248,17 +270,13 @@
             .section-header { justify-content: flex-start; }
             .section-header .line:first-child { display: none; }
             .section-header .line:last-child { max-width: none; }
-            .horizontal-scroll { justify-content: flex-start; padding-bottom: 15px; }
-            
-            /* 修正移动端：统一所有视频卡片的物理高度 */
-            .video-frame {
-                height: var(--v-height-mobile) !important;
-            }
+            .video-frame { height: var(--v-height-mobile) !important; }
             .video-card.portrait { width: calc(var(--v-height-mobile) * 0.5625); }
+            .video-card.four-three { width: calc(var(--v-height-mobile) * 1.3333); }
             .video-card.three-four { width: calc(var(--v-height-mobile) * 0.75); }
             .video-card.landscape { width: calc(var(--v-height-mobile) * 1.7777); }
-            
             .marquee-item { width: 200px; height: 280px; }
+            .horizontal-scroll { justify-content: flex-start; }
         }
     </style>
 </head>
@@ -275,6 +293,11 @@
         </div>
     </nav>
 
+    <div id="video-lightbox">
+        <div class="close-video" onclick="closeVideoLightbox()"><i data-lucide="x" size="40"></i></div>
+        <video id="lightbox-video" controls playsinline></video>
+    </div>
+
     <div id="lightbox" onclick="closeLightbox()">
         <img id="lightbox-img" src="" alt="预览图">
     </div>
@@ -289,6 +312,9 @@
         <div class="section-header"><div class="line"></div><h2>时尚视觉视频 / FASHION VIDEO (5)</h2><div class="line"></div></div>
         <div class="horizontal-scroll">
             <script>
+                // GitHub 资源根目录
+                const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/MoCavendish/momowebpage/main/images/";
+
                 const fashionVideos = [
                     "https://permalink.dogevideo.com/player/get.m3u8?vcode=07e08b5c4a577628&userId=14748&flsign=815c0f8de1d44441f2ea259dd448fa87&ext=.m3u8",
                     "https://permalink.dogevideo.com/player/get.m3u8?vcode=c9cc489dcd6cf243&userId=14748&flsign=a3f47ce9eca367a3baaa2011c2a06c95&ext=.m3u8",
@@ -296,19 +322,21 @@
                     "https://permalink.dogevideo.com/player/get.m3u8?vcode=1731b3cce115170f&userId=14748&flsign=bec18441e3299501e1d8c3ded4c432e5&ext=.m3u8",
                     "https://permalink.dogevideo.com/player/get.m3u8?vcode=ad46dfe9201737be&userId=14748&flsign=a0b4215561c294430dd155bf3963c0c2&ext=.m3u8"
                 ];
+
                 const fashionPosters = [
-                    "https://img-uc.dogecloud.com/14748/image/1772791596/60108455f2a928711d59e8c9496d313d.jpg?sign=1772805601-e78d07d9bef9a19c35809c63b86bca27-14748-fea0d3e41ab959d49b37b0b5aa8ae05a",
-                    "https://img-uc.dogecloud.com/14748/image/1772791595/b965383c0bb5eb3e62124d9afbda3b45.jpg?sign=1772805601-af244a6181452b1ecbfd0832db9b08b8-14748-b0daf5b94c84ca9aaf81b755037d1880",
-                    "https://img-uc.dogecloud.com/14748/image/1772791594/3603b9b9c2ca6b6fb2608dd57f927702.jpg?sign=1772805601-1fbf5c069a31fcb089ab5e85bd5b11fd-14748-232aa0cb8659403f555f85c1aac72e01",
-                    "https://img-uc.dogecloud.com/14748/image/1772791593/f5155b53210a5b95c9a2feaa186a17b5.jpg?sign=1772805601-71414bd7a3eaf8e0f47f967c053625b8-14748-30e340e8b76496efbe567ff5412a6fb4",
-                    "https://img-uc.dogecloud.com/14748/image/1772791591/a541375e0677cb85810dea08fa4a3f8f.jpg?sign=1772805601-62b7fd5ba61efdad457a4bbfd3a8f8b4-14748-9fd9d50e706796b6f790df306723d67d"
+                    GITHUB_RAW_BASE + "S1.jpg",
+                    GITHUB_RAW_BASE + "S2.jpg",
+                    GITHUB_RAW_BASE + "S3.jpg",
+                    GITHUB_RAW_BASE + "S4.jpg",
+                    GITHUB_RAW_BASE + "S5.jpg"
                 ];
+
                 fashionVideos.forEach((src, index) => {
                     const poster = fashionPosters[index];
                     document.write(`
                         <div class="video-card portrait">
-                            <div class="video-frame" onclick="handleVideoClick(this)">
-                                <video class="hls-video" data-src="${src}" poster="${poster}" playsinline preload="none"></video>
+                            <div class="video-frame" onclick="openVideoLightbox('${src}')">
+                                <img src="${poster}" alt="Poster" onerror="this.src='https://via.placeholder.com/600x800?text=Image+Not+Found'">
                                 <div class="play-overlay"><i data-lucide="play" fill="currentColor"></i></div>
                             </div>
                             <div class="video-meta"><h3>时尚作品 ${(index + 1).toString().padStart(2,'0')}</h3><p>9:16 | 竖屏视觉流</p></div>
@@ -325,20 +353,17 @@
         <div class="marquee-wrapper" id="fashion-marquee-wrapper">
             <div class="marquee-content">
                 <script>
-                    const imgs = [
-                        "https://img-uc.dogecloud.com/14748/image/1772787955/82d5d0318a07302edea85cd06aa45380.jpg?sign=1772802001-c5901ce123e681d8e9c5b05e9046ebaa-14748-06de100187607ee88c19804ffe188e22",
-                        "https://img-uc.dogecloud.com/14748/image/1772787993/8031f1c414099bc80334dc676327d676.jpg?sign=1772802001-1477f5a5f882d09969f649bd1302f396-14748-f341a0eef9a5567f2d425c15d8c1d473",
-                        "https://img-uc.dogecloud.com/14748/image/1772787989/18e4c2127bab4e26372744484d3fdb01.jpg?sign=1772802001-fc17454e547a13b4e620f107138f636c-14748-9245c1056b8d5438c846c8dd55644b87",
-                        "https://img-uc.dogecloud.com/14748/image/1772787986/a1421f059535b3f58469ff444b42b57a.jpg?sign=1772802001-1d2c0e64a4f7d8fb6e5e977ba41cd9f4-14748-3055555f9b8259b8939a56bfc0e9c368",
-                        "https://img-uc.dogecloud.com/14748/image/1772787979/d90cb4a74dc03abe348d66833ba1b819.jpg?sign=1772802001-6a3fb84c9fdb6c2d3c65b8ce1bbf70e1-14748-5dbb6d6704aee36fca0aec4f7bcd867d",
-                        "https://img-uc.dogecloud.com/14748/image/1772787976/0561a97a7d5657989c5ae0f02e7b14f8.jpg?sign=1772802001-5809561326a4c9fd9bb1490f68632883-14748-c8c1b9553a9f224fc13056ec221a3d70",
-                        "https://img-uc.dogecloud.com/14748/image/1772787973/6bf71dccc595b82e4c00e013aa189498.jpg?sign=1772802001-40767159f83728bc0c4b9a6744d8bf13-14748-3319aa19a3bca626d6be1c10957b5a26",
-                        "https://img-uc.dogecloud.com/14748/image/1772787969/25c6c9d9077f4426967717ce63255e50.jpg?sign=1772802001-210c88ad1887d87a6ea6b908a176d21e-14748-daceebc583a73c386ee823c9e0d4db96",
-                        "https://img-uc.dogecloud.com/14748/image/1772787966/758b5a634752fa34f3b2419d773c6f30.jpg?sign=1772802001-3951d86301a2f9fd46d9d5c2f6654729-14748-528830c9fc3a2babb5a3ab6224e25290",
-                        "https://img-uc.dogecloud.com/14748/image/1772787962/a859944046343d0f1ef9d01b1b23e3d8.jpg?sign=1772802001-b142d05cd58b88b48726813bcbb73b66-14748-218739e02b5e2e27d027e3f861955315"
-                    ];
+                    const imgs = [];
+                    for(let i=1; i<=10; i++) {
+                        imgs.push(GITHUB_RAW_BASE + `P${i}.jpg`);
+                    }
+                    
                     [...imgs, ...imgs].forEach(src => {
-                        document.write(`<div class="marquee-item" onclick="onItemClick(this, event)" data-full="${src}"><img src="${src}?auto=format&fit=crop&w=600&q=80"></div>`);
+                        document.write(`
+                            <div class="marquee-item" onclick="onItemClick(this, event)" data-full="${src}">
+                                <img src="${src}" onerror="this.src='https://via.placeholder.com/300x400?text=Fashion+Photo'">
+                            </div>
+                        `);
                     });
                 </script>
             </div>
@@ -352,10 +377,11 @@
             <script>
                 const aiVideoPlaceholder = "https://permalink.dogevideo.com/player/get.m3u8?vcode=07e08b5c4a577628&userId=14748&flsign=815c0f8de1d44441f2ea259dd448fa87&ext=.m3u8";
                 for(let i=1; i<=4; i++) {
+                    let aiPoster = GITHUB_RAW_BASE + `S1.jpg`; 
                     document.write(`
                         <div class="video-card portrait">
-                            <div class="video-frame" onclick="handleVideoClick(this)">
-                                <video class="hls-video" data-src="${aiVideoPlaceholder}" playsinline preload="none"></video>
+                            <div class="video-frame" onclick="openVideoLightbox('${aiVideoPlaceholder}')">
+                                <img src="${aiPoster}" alt="Poster" onerror="this.src='${GITHUB_RAW_BASE}S1.jpg'">
                                 <div class="play-overlay"><i data-lucide="play" fill="currentColor"></i></div>
                             </div>
                             <div class="video-meta">
@@ -369,7 +395,7 @@
         </div>
     </section>
 
-    <!-- 产品展示视频区 (关键修复区) -->
+    <!-- 产品展示视频区 -->
     <section id="product-video" class="section">
         <div class="section-header"><div class="line"></div><h2>产品展示视频 / PRODUCT VIDEO (4)</h2><div class="line"></div></div>
         <div class="horizontal-scroll">
@@ -380,22 +406,32 @@
                     "https://permalink.dogevideo.com/player/get.m3u8?vcode=abe9aa4015f7c3c8&userId=14748&flsign=e46fe2e6336ff8d3365c1616ce7b37a1&ext=.m3u8",
                     "https://permalink.dogevideo.com/player/get.m3u8?vcode=61de0dbf4c9dc72b&userId=14748&flsign=ad39e841e8fd22ac05f1c2027b48661b&ext=.m3u8"
                 ];
+                
                 const productPosters = [
-                    "https://img-uc.dogecloud.com/14748/image/1772791159/01ec1808285ab740fde8cd0c1f56bf2f.jpg?sign=1772802001-fa581184600cf458cf75660d57933c30-14748-97964c222ce82e53d02fc0da836dd288",
-                    "https://img-uc.dogecloud.com/14748/image/1772791161/6d88ab7bdf112b110023ff73000173af.jpg?sign=1772802001-e52352b24e9669e9088dd33c14edfe52-14748-bb60ffea64feacb9b4828ab998d5ca7f",
-                    "https://img-uc.dogecloud.com/14748/image/1772791163/053b455cc09324615789bc1cc005c04d.jpg?sign=1772802001-e089594204183a70c1ca240468e1535-14748-548dd9231d3f7e67daf319f722b0405f",
-                    "https://img-uc.dogecloud.com/14748/image/1772791162/827de7ba23b5f250b7d7b66cbd62dc59.jpg?sign=1772802001-04d360a4e10577e0a69640383a8fda0a-14748-c693b5b64b2f58d061ade748e70b164c"
+                    GITHUB_RAW_BASE + "C1.jpg",
+                    GITHUB_RAW_BASE + "C2.jpg",
+                    GITHUB_RAW_BASE + "C3.jpg",
+                    GITHUB_RAW_BASE + "C4.jpg"
                 ];
-                const productLayout = ['landscape', 'portrait', 'landscape', 'three-four'];
+
+                // 修改布局逻辑：最后一个改为 3:4 (three-four)
+                const productLayout = ['four-three', 'portrait', 'four-three', 'three-four'];
+                
                 productVideos.forEach((src, index) => {
                     const type = productLayout[index];
                     const poster = productPosters[index];
-                    let label = type === 'landscape' ? "横屏展示" : type === 'portrait' ? "竖屏展示" : "经典画幅";
-                    let ratio = type === 'landscape' ? "16:9" : type === 'portrait' ? "9:16" : "3:4";
+                    
+                    // 根据类型决定文本描述
+                    let ratio = "16:9";
+                    if (type === 'portrait') ratio = "9:16";
+                    if (type === 'three-four') ratio = "3:4";
+                    
+                    let label = (type === 'four-three' || type === 'landscape') ? "横屏展示" : "竖屏展示";
+                    
                     document.write(`
                         <div class="video-card ${type}">
-                            <div class="video-frame" onclick="handleVideoClick(this)">
-                                <video class="hls-video" data-src="${src}" poster="${poster}" playsinline preload="none"></video>
+                            <div class="video-frame" onclick="openVideoLightbox('${src}')">
+                                <img src="${poster}" alt="Poster" onerror="this.src='https://via.placeholder.com/800x600?text=Product+Poster'">
                                 <div class="play-overlay"><i data-lucide="play" fill="currentColor"></i></div>
                             </div>
                             <div class="video-meta"><h3>产品${label} ${(index + 1).toString().padStart(2,'0')}</h3><p>${ratio} | 动态美学</p></div>
@@ -470,44 +506,31 @@
     <script>
         lucide.createIcons();
 
-        let currentActiveFrame = null;
+        const vlb = document.getElementById('video-lightbox');
+        const lbVideo = document.getElementById('lightbox-video');
+        let hls = null;
 
-        function handleVideoClick(frame) {
-            const video = frame.querySelector('video');
-            const videoSrc = video.getAttribute('data-src');
-
-            if (currentActiveFrame === frame) {
-                video.paused ? video.play() : video.pause();
-                return;
-            }
-
-            if (currentActiveFrame) {
-                const prevVideo = currentActiveFrame.querySelector('video');
-                prevVideo.pause();
-                currentActiveFrame.classList.remove('is-active');
-                prevVideo.classList.remove('is-playing');
-                prevVideo.controls = false;
-            }
-
-            currentActiveFrame = frame;
-
-            if (!frame.classList.contains('is-active')) {
-                frame.classList.add('is-active');
-                video.classList.add('is-playing');
-                video.controls = true;
-
-                if (Hls.isSupported()) {
-                    const hls = new Hls();
-                    hls.attachMedia(video);
-                    hls.on(Hls.Events.MEDIA_ATTACHED, () => hls.loadSource(videoSrc));
-                    hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
-                } else {
-                    video.src = videoSrc;
-                    video.play();
-                }
+        function openVideoLightbox(src) {
+            vlb.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            
+            if (Hls.isSupported() && src.includes('.m3u8')) {
+                if(hls) hls.destroy();
+                hls = new Hls();
+                hls.loadSource(src);
+                hls.attachMedia(lbVideo);
+                hls.on(Hls.Events.MANIFEST_PARSED, () => lbVideo.play());
             } else {
-                video.play();
+                lbVideo.src = src;
+                lbVideo.play();
             }
+        }
+
+        function closeVideoLightbox() {
+            vlb.classList.remove('active');
+            document.body.style.overflow = 'auto';
+            lbVideo.pause();
+            if(hls) { hls.destroy(); hls = null; }
         }
 
         const lb = document.getElementById('lightbox');
@@ -522,7 +545,6 @@
             lightboxActive = true;
             setTimeout(() => lb.classList.add('active'), 10);
             document.body.style.overflow = 'hidden';
-            if (currentActiveFrame) currentActiveFrame.querySelector('video').pause();
         }
 
         function closeLightbox() {
@@ -587,6 +609,10 @@
         }
         
         initMarquee('fashion-marquee-wrapper', 1.0);
+
+        document.addEventListener('keydown', e => {
+            if(e.key === 'Escape') { closeVideoLightbox(); closeLightbox(); }
+        });
     </script>
 </body>
 </html>
