@@ -105,7 +105,7 @@
         }
 
         .video-card { flex-shrink: 0; scroll-snap-align: start; }
-        /* 桌面端默认比例 */
+        /* 响应式宽度计算 */
         .video-card.portrait { width: calc(var(--v-height) * 0.5625); }
         .video-card.landscape { width: calc(var(--v-height) * 1.7777); }
         .video-card.three-four { width: calc(var(--v-height) * 0.75); }
@@ -250,21 +250,13 @@
             .section-header .line:last-child { max-width: none; }
             .horizontal-scroll { justify-content: flex-start; padding-bottom: 15px; }
             
-            /* 其他板块维持原有的比例感（非 1:1） */
+            /* 修正移动端：统一所有视频卡片的物理高度 */
             .video-frame {
                 height: var(--v-height-mobile) !important;
             }
             .video-card.portrait { width: calc(var(--v-height-mobile) * 0.5625); }
             .video-card.three-four { width: calc(var(--v-height-mobile) * 0.75); }
             .video-card.landscape { width: calc(var(--v-height-mobile) * 1.7777); }
-
-            /* 特殊修改：仅在“产品展示视频”板块中，将横屏卡片设为 1:1 且高度对齐竖屏 */
-            #product-video .video-card.landscape {
-                width: var(--v-height-mobile) !important; /* 宽度等于高度，形成 1:1 */
-            }
-            #product-video .video-frame {
-                height: var(--v-height-mobile) !important; /* 统一高度 */
-            }
             
             .marquee-item { width: 200px; height: 280px; }
         }
@@ -377,7 +369,7 @@
         </div>
     </section>
 
-    <!-- 产品展示视频区 -->
+    <!-- 产品展示视频区 (关键修复区) -->
     <section id="product-video" class="section">
         <div class="section-header"><div class="line"></div><h2>产品展示视频 / PRODUCT VIDEO (4)</h2><div class="line"></div></div>
         <div class="horizontal-scroll">
