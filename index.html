@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>陈默 | 摄像师 & AI 影像创作个人作品集</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <style>
+        :root {
+            --primary: #d4af37;
+            --bg: #0a0a0a;
+            --surface: #141414;
+            --text-main: #ffffff;
+            --text-dim: #a0a0a0;
+            --transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            --v-height: 500px;
+            --v-height-mobile: 350px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: 'PingFang SC', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* 导航 */
+        nav {
+            position: fixed;
+            top: 0; width: 100%; z-index: 1000;
+            padding: 30px 5%;
+            display: flex; justify-content: space-between; align-items: center;
+            background: linear-gradient(to bottom, rgba(10,10,10,0.9), transparent);
+            backdrop-filter: blur(10px);
+        }
+        .logo { font-weight: 700; letter-spacing: 0.3em; color: var(--primary); }
+        .nav-links { display: flex; gap: 25px; }
+        .nav-links a { text-decoration: none; color: var(--text-dim); font-size: 0.8rem; letter-spacing: 0.1em; transition: var(--transition); }
+        .nav-links a:hover { color: var(--primary); }
+
+        /* Hero 区域 */
+        .hero {
+            height: 60vh; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            text-align: center;
+            padding: 0 5%;
+        }
+        .hero h1 { 
+            font-size: clamp(2.5rem, 10vw, 4.5rem); 
+            letter-spacing: 0.5em; 
+            margin-bottom: 20px; 
+            font-weight: 300;
+        }
+        .hero p { 
+            color: var(--text-dim); 
+            letter-spacing: 0.3em; 
+            font-size: 0.9rem; 
+            text-transform: uppercase;
+            opacity: 0.8;
+        }
+
+        .section { padding: 60px 5%; overflow: hidden; }
+        
+        /* 章节大标题居中 */
+        .section-header {
+            margin-bottom: 40px;
+            display: flex; align-items: center; justify-content: center; gap: 20px;
+        }
+        .section-header h2 { font-size: 1.1rem; letter-spacing: 0.2em; color: var(--primary); white-space: nowrap; }
+        .line { height: 1px; flex-grow: 1; background: rgba(255,255,255,0.1); max-width: 300px; }
+
+        /* 视频展示区 */
+        .horizontal-scroll {
+            display: flex;
+            overflow-x: auto;
+            gap: 24px;
+            padding-bottom: 20px;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            justify-content: center;
+        }
+        .horizontal-scroll::-webkit-scrollbar { height: 4px; }
+        .horizontal-scroll::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
+
+        .video-card { flex-shrink: 0; scroll-snap-align: start; }
+        .video-card.portrait { width: calc(var(--v-height) * 0.5625); }
+        .video-card.landscape { width: calc(var(--v-height) * 1.7777); }
+        .video-card.three-four { width: calc(var(--v-height) * 0.75); } /* 3:4 比例控制 */
+
+        .video-meta {
+            margin-top: 15px;
+            text-align: left;
+        }
+        .video-meta h3 { font-size: 0.9rem; font-weight: 500; margin-bottom: 4px; }
+        .video-meta p { font-size: 0.75rem; color: var(--text-dim); }
+
+        .video-frame {
+            position: relative;
+            width: 100%;
+            height: var(--v-height);
+            background: linear-gradient(45deg, #1a1a1a, #000); 
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            border: 1px solid rgba(255,255,255,0.05);
+            cursor: pointer;
+        }
+
+        video { 
+            width: 100%; height: 100%; object-fit: cover; display: block; 
+            background: #000;
+        }
+        
+        video:not(.is-playing)::-webkit-media-controls {
+            display: none !important;
+        }
+
+        .play-overlay {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px; height: 60px;
+            background: rgba(212, 175, 55, 0.2);
+            border: 1px solid var(--primary);
+            border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            color: var(--primary);
+            transition: var(--transition);
+            z-index: 10;
+            pointer-events: none;
+        }
+        .video-frame:hover .play-overlay {
+            background: rgba(212, 175, 55, 0.4);
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+        .video-frame.is-active .play-overlay {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        /* 无限流动图片展示 */
+        .marquee-wrapper {
+            position: relative;
+            width: 100vw;
+            margin-left: -5%;
+            overflow: hidden;
+            padding: 20px 0;
+            cursor: grab;
+            user-select: none;
+            touch-action: pan-y;
+        }
+        .marquee-wrapper:active { cursor: grabbing; }
+        
+        .marquee-content {
+            display: flex;
+            gap: 20px;
+            width: max-content;
+            will-change: transform;
+        }
+
+        .marquee-item {
+            width: 300px;
+            height: 400px;
+            flex-shrink: 0;
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid #222;
+        }
+        .marquee-item img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            transition: transform 0.5s; 
+            pointer-events: none; 
+        }
+        .marquee-item:hover img { transform: scale(1.05); }
+
+        /* 全屏查看器 Lightbox */
+        #lightbox {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 2000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            cursor: zoom-out;
+        }
+        #lightbox img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            box-shadow: 0 0 50px rgba(0,0,0,1);
+            pointer-events: none;
+        }
+        #lightbox.active { display: flex; }
+
+        /* 关于我与经历 - 恢复经典比例布局 */
+        .about-content { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 60px; margin-top: 20px; }
+        .about-text h3, .resume-list h3 { color: var(--primary); margin-bottom: 20px; font-size: 1.2rem; border-bottom: 1px solid rgba(212,175,55,0.3); display: inline-block; padding-bottom: 5px; width: max-content; }
+        .about-text p { color: #ccc; font-size: 0.95rem; margin-bottom: 1.5rem; text-align: justify; line-height: 1.8; }
+        
+        .resume-list { display: flex; flex-direction: column; gap: 30px; }
+        .resume-item { border-left: 1px solid rgba(255,255,255,0.1); padding-left: 20px; position: relative; }
+        .resume-item::before { content: ''; position: absolute; left: -4px; top: 0; width: 7px; height: 7px; background: var(--primary); border-radius: 50%; }
+        .resume-date { font-size: 0.75rem; color: var(--primary); font-family: monospace; font-weight: bold; }
+        .resume-title { font-size: 1rem; font-weight: 600; margin: 5px 0; color: #fff; }
+        .resume-subtitle { font-size: 0.85rem; color: #eee; margin-bottom: 10px; opacity: 0.9; }
+        .resume-desc { font-size: 0.85rem; color: var(--text-dim); text-align: justify; }
+        .resume-desc li { margin-bottom: 5px; list-style-type: none; position: relative; padding-left: 15px; }
+        .resume-desc li::before { content: '→'; position: absolute; left: 0; color: var(--primary); font-size: 0.7rem; }
+
+        .skills-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; margin-top: 25px; }
+        .skill-box { padding: 18px; background: var(--surface); border-radius: 4px; border-top: 2px solid var(--primary); transition: var(--transition); }
+        .skill-box:hover { transform: translateY(-5px); background: #1a1a1a; }
+        .skill-box h4 { font-size: 0.85rem; margin-bottom: 8px; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+        .skill-box p { font-size: 0.78rem; color: var(--text-dim); line-height: 1.5; }
+
+        footer { padding: 60px 5%; background: #050505; text-align: center; border-top: 1px solid #111; }
+        .contact-methods { display: flex; justify-content: center; gap: 40px; margin-top: 20px; }
+        .contact-item { text-decoration: none; color: var(--text-dim); font-size: 0.9rem; display: flex; align-items: center; gap: 10px; transition: var(--transition); }
+        .contact-item:hover { color: var(--primary); }
+
+        @media (max-width: 992px) { .about-content { grid-template-columns: 1fr; } }
+        @media (max-width: 768px) {
+            :root { --v-height: var(--v-height-mobile); }
+            .section-header { justify-content: flex-start; }
+            .section-header .line:first-child { display: none; }
+            .section-header .line:last-child { max-width: none; }
+            .horizontal-scroll { justify-content: flex-start; }
+            .hero { height: 50vh; }
+            .marquee-item { width: 200px; height: 280px; }
+            .video-card.portrait { width: calc(var(--v-height-mobile) * 0.5625); }
+            .video-card.landscape { width: 85vw; }
+            .video-card.three-four { width: calc(var(--v-height-mobile) * 0.75); }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo">CHEN MO</div>
+        <div class="nav-links">
+            <a href="#fashion-video">时尚视频</a>
+            <a href="#fashion-photo">时尚平面</a>
+            <a href="#ai-video">AI作品</a>
+            <a href="#product-video">产品视频</a>
+            <a href="#about">关于我</a>
+        </div>
+    </nav>
+
+    <div id="lightbox" onclick="closeLightbox()">
+        <img id="lightbox-img" src="" alt="预览图">
+    </div>
+
+    <section class="hero">
+        <h1>陈 默</h1>
+        <p>Fashion Videographer & AI Visuals Creator</p>
+    </section>
+
+    <!-- 时尚视频板块 -->
+    <section id="fashion-video" class="section">
+        <div class="section-header"><div class="line"></div><h2>时尚视觉视频 / FASHION VIDEO (5)</h2><div class="line"></div></div>
+        <div class="horizontal-scroll">
+            <script>
+                // 视频流链接
+                const fashionVideos = [
+                    "https://permalink.dogevideo.com/player/get.m3u8?vcode=07e08b5c4a577628&userId=14748&flsign=815c0f8de1d44441f2ea259dd448fa87&ext=.m3u8",
+                    "https://permalink.dogevideo.com/player/get.m3u8?vcode=c9cc489dcd6cf243&userId=14748&flsign=a3f47ce9eca367a3baaa2011c2a06c95&ext=.m3u8",
+                    "https://permalink.dogevideo.com/player/get.m3u8?vcode=c36d26f6aceab097&userId=14748&flsign=726153dc17bf392e78a83b5d2afc1782&ext=.m3u8",
+                    "https://permalink.dogevideo.com/player/get.m3u8?vcode=1731b3cce115170f&userId=14748&flsign=bec18441e3299501e1d8c3ded4c432e5&ext=.m3u8",
+                    "https://permalink.dogevideo.com/player/get.m3u8?vcode=ad46dfe9201737be&userId=14748&flsign=a0b4215561c294430dd155bf3963c0c2&ext=.m3u8"
+                ];
+                
+                // 更新后的时尚视频缩略图链接
+                const fashionPosters = [
+                    "https://img-uc.dogecloud.com/14748/image/1772791596/60108455f2a928711d59e8c9496d313d.jpg?sign=1772805601-e78d07d9bef9a19c35809c63b86bca27-14748-fea0d3e41ab959d49b37b0b5aa8ae05a",
+                    "https://img-uc.dogecloud.com/14748/image/1772791595/b965383c0bb5eb3e62124d9afbda3b45.jpg?sign=1772805601-af244a6181452b1ecbfd0832db9b08b8-14748-b0daf5b94c84ca9aaf81b755037d1880",
+                    "https://img-uc.dogecloud.com/14748/image/1772791594/3603b9b9c2ca6b6fb2608dd57f927702.jpg?sign=1772805601-1fbf5c069a31fcb089ab5e85bd5b11fd-14748-232aa0cb8659403f555f85c1aac72e01",
+                    "https://img-uc.dogecloud.com/14748/image/1772791593/f5155b53210a5b95c9a2feaa186a17b5.jpg?sign=1772805601-71414bd7a3eaf8e0f47f967c053625b8-14748-30e340e8b76496efbe567ff5412a6fb4",
+                    "https://img-uc.dogecloud.com/14748/image/1772791591/a541375e0677cb85810dea08fa4a3f8f.jpg?sign=1772805601-62b7fd5ba61efdad457a4bbfd3a8f8b4-14748-9fd9d50e706796b6f790df306723d67d"
+                ];
+                
+                fashionVideos.forEach((src, index) => {
+                    const poster = fashionPosters[index];
+                    document.write(`
+                        <div class="video-card portrait">
+                            <div class="video-frame" onclick="handleVideoClick(this)">
+                                <video class="hls-video" data-src="${src}" poster="${poster}" playsinline preload="none"></video>
+                                <div class="play-overlay"><i data-lucide="play" fill="currentColor"></i></div>
+                            </div>
+                            <div class="video-meta"><h3>时尚作品 ${(index + 1).toString().padStart(2,'0')}</h3><p>9:16 | 竖屏视觉流</p></div>
+                        </div>
+                    `);
+                });
+            </script>
+        </div>
+    </section>
+
+    <!-- 时尚平面板块 -->
+    <section id="fashion-photo" class="section">
+        <div class="section-header"><div class="line"></div><h2>时尚视觉平面 / FASHION PHOTO</h2><div class="line"></div></div>
+        <div class="marquee-wrapper" id="fashion-marquee-wrapper">
+            <div class="marquee-content">
+                <script>
+                    const imgs = [
+                        "https://img-uc.dogecloud.com/14748/image/1772787955/82d5d0318a07302edea85cd06aa45380.jpg?sign=1772802001-c5901ce123e681d8e9c5b05e9046ebaa-14748-06de100187607ee88c19804ffe188e22",
+                        "https://img-uc.dogecloud.com/14748/image/1772787993/8031f1c414099bc80334dc676327d676.jpg?sign=1772802001-1477f5a5f882d09969f649bd1302f396-14748-f341a0eef9a5567f2d425c15d8c1d473",
+                        "https://img-uc.dogecloud.com/14748/image/1772787989/18e4c2127bab4e26372744484d3fdb01.jpg?sign=1772802001-fc17454e547a13b4e620f107138f636c-14748-9245c1056b8d5438c846c8dd55644b87",
+                        "https://img-uc.dogecloud.com/14748/image/1772787986/a1421f059535b3f58469ff444b42b57a.jpg?sign=1772802001-1d2c0e64a4f7d8fb6e5e977ba41cd9f4-14748-3055555f9b8259b8939a56bfc0e9c368",
+                        "https://img-uc.dogecloud.com/14748/image/1772787979/d90cb4a74dc03abe348d66833ba1b819.jpg?sign=1772802001-6a3fb84c9fdb6c2d3c65b8ce1bbf70e1-14748-5dbb6d6704aee36fca0aec4f7bcd867d",
+                        "https://img-uc.dogecloud.com/14748/image/1772787976/0561a97a7d5657989c5ae0f02e7b14f8.jpg?sign=1772802001-5809561326a4c9fd9bb1490f68632883-14748-c8c1b9553a9f224fc13056ec221a3d70",
+                        "https://img-uc.dogecloud.com/14748/image/1772787973/6bf71dccc595b82e4c00e013aa189498.jpg?sign=1772802001-40767159f83728bc0c4b9a6744d8bf13-14748-3319aa19a3bca626d6be1c10957b5a26",
+                        "https://img-uc.dogecloud.com/14748/image/1772787969/25c6c9d9077f4426967717ce63255e50.jpg?sign=1772802001-210c88ad1887d87a6ea6b908a176d21e-14748-daceebc583a73c386ee823c9e0d4db96",
+                        "https://img-uc.dogecloud.com/14748/image/1772787966/758b5a634752fa34f3b2419d773c6f30.jpg?sign=1772802001-3951d86301a2f9fd46d9d5c2f6654729-14748-528830c9fc3a2babb5a3ab6224e25290",
+                        "https://img-uc.dogecloud.com/14748/image/1772787962/a859944046343d0f1ef9d01b1b23e3d8.jpg?sign=1772802001-b142d05cd58b88b48726813bcbb73b66-14748-218739e02b5e2e27d027e3f861955315"
+                    ];
+                    [...imgs, ...imgs].forEach(src => {
+                        document.write(`<div class="marquee-item" data-full="${src}"><img src="${src}?auto=format&fit=crop&w=600&q=80"></div>`);
+                    });
+                </script>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI生成作品板块 -->
+    <section id="ai-video" class="section">
+        <div class="section-header"><div class="line"></div><h2>AI生成作品 / AI GENERATED (4)</h2><div class="line"></div></div>
+        <div class="horizontal-scroll">
+            <script>
+                const aiVideoPlaceholder = "https://permalink.dogevideo.com/player/get.m3u8?vcode=07e08b5c4a577628&userId=14748&flsign=815c0f8de1d44441f2ea259dd448fa87&ext=.m3u8";
+                for(let i=1; i<=4; i++) {
+                    document.write(`
+                        <div class="video-card portrait">
+                            <div class="video-frame" onclick="handleVideoClick(this)">
+                                <video class="hls-video" data-src="${aiVideoPlaceholder}" playsinline preload="none"></video>
+                                <div class="play-overlay"><i data-lucide="play" fill="currentColor"></i></div>
+                            </div>
+                            <div class="video-meta"><h3>AI视觉探索 ${i.toString().padStart(2,'0')}</h3><p>Runway / MJ | 9:16</p></div>
+                        </div>
+                    `);
+                }
+            </script>
+        </div>
+    </section>
+
+    <!-- 产品视频板块 -->
+    <section id="product-video" class="section">
+        <div class="section-header"><div class="line"></div><h2>产品展示视频 / PRODUCT VIDEO (4)</h2><div class="line"></div></div>
+        <div class="horizontal-scroll">
+            <script>
+                // 包含新增视频的产品视频链接
+                const productVideos = [
+                    "https://permalink.dogevideo.com/player/get.m3u8?vcode=7ce78817e7be86f8&userId=14748&flsign=b72d3375911bdd448ed1218c7946a1dc&ext=.m3u8",
+                    "https://permalink.dogevideo.com/player/get.m3u8?vcode=2b90968f9e64bc1a&userId=14748&flsign=cebc4a1b429f38e46a9c87685e380b5f&ext=.m3u8",
+                    "https://permalink.dogevideo.com/player/get.m3u8?vcode=abe9aa4015f7c3c8&userId=14748&flsign=e46fe2e6336ff8d3365c1616ce7b37a1&ext=.m3u8",
+                    "https://permalink.dogevideo.com/player/get.m3u8?vcode=61de0dbf4c9dc72b&userId=14748&flsign=ad39e841e8fd22ac05f1c2027b48661b&ext=.m3u8"
+                ];
+
+                // 对应的缩略图链接
+                const productPosters = [
+                    "https://img-uc.dogecloud.com/14748/image/1772791159/01ec1808285ab740fde8cd0c1f56bf2f.jpg?sign=1772802001-fa581184600cf458cf75660d57933c30-14748-97964c222ce82e53d02fc0da836dd288",
+                    "https://img-uc.dogecloud.com/14748/image/1772791161/6d88ab7bdf112b110023ff73000173af.jpg?sign=1772802001-e52352b24e9669e9088dd33c14edfe52-14748-bb60ffea64feacb9b4828ab998d5ca7f",
+                    "https://img-uc.dogecloud.com/14748/image/1772791163/053b455cc09324615789bc1cc005c04d.jpg?sign=1772802001-e089594204183a70c1dca240468e1535-14748-548dd9231d3f7e67daf319f722b0405f",
+                    "https://img-uc.dogecloud.com/14748/image/1772791162/827de7ba23b5f250b7d7b66cbd62dc59.jpg?sign=1772802001-04d360a4e10577e0a69640383a8fda0a-14748-c693b5b64b2f58d061ade748e70b164c"
+                ];
+
+                // 布局类型对应关系
+                const productLayout = ['landscape', 'portrait', 'landscape', 'three-four'];
+                
+                productVideos.forEach((src, index) => {
+                    const type = productLayout[index];
+                    const poster = productPosters[index];
+                    let label = "";
+                    let ratio = "";
+                    
+                    if (type === 'landscape') { label = "横屏展示"; ratio = "16:9"; }
+                    else if (type === 'portrait') { label = "竖屏展示"; ratio = "9:16"; }
+                    else if (type === 'three-four') { label = "经典画幅"; ratio = "3:4"; }
+
+                    document.write(`
+                        <div class="video-card ${type}">
+                            <div class="video-frame" onclick="handleVideoClick(this)">
+                                <video class="hls-video" data-src="${src}" poster="${poster}" playsinline preload="none"></video>
+                                <div class="play-overlay"><i data-lucide="play" fill="currentColor"></i></div>
+                            </div>
+                            <div class="video-meta">
+                                <h3>产品${label} ${(index + 1).toString().padStart(2,'0')}</h3>
+                                <p>${ratio} | 动态美学</p>
+                            </div>
+                        </div>
+                    `);
+                });
+            </script>
+        </div>
+    </section>
+
+    <!-- 关于我与经历板块 -->
+    <section id="about" class="section">
+        <div class="section-header"><div class="line"></div><h2>关于我与经历 / BIOGRAPHY</h2><div class="line"></div></div>
+        <div class="about-content">
+            <div class="about-text">
+                <h3>职业概要</h3>
+                <p>本人深耕时尚摄像领域8年，具备成熟的商业拍摄经验与国际化审美。工作心态积极、责任心强，热爱突破创新，持续钻研前沿拍摄技术与 AI 影像工具。</p>
+                <p>熟悉海内外时尚影像行业标准，可独立完成全流程工作。英语口语良好，有出国经历，适应力强，致力于将商业美学与前沿技术深度融合。</p>
+                
+                <h3>专业技能</h3>
+                <div class="skills-grid">
+                    <div class="skill-box">
+                        <h4><i data-lucide="camera" size="14"></i> 拍摄执行</h4>
+                        <p>精通各类主流摄像机操作，擅长多灯位布光设计与电影感画面构图。</p>
+                    </div>
+                    <div class="skill-box">
+                        <h4><i data-lucide="cpu" size="14"></i> AI 影像流</h4>
+                        <p>运用 Midjourney、Runway 等工具辅助视觉策划、风格迁移及动态生成。</p>
+                    </div>
+                    <div class="skill-box">
+                        <h4><i data-lucide="layers" size="14"></i> 后期工程</h4>
+                        <p>熟练使用 Premiere、DaVinci Resolve 进行高质量剪辑、调色及多机位处理。</p>
+                    </div>
+                    <div class="skill-box">
+                        <h4><i data-lucide="globe" size="14"></i> 跨国协作</h4>
+                        <p>具备良好的跨文化沟通能力，适应海外片场环境及双语工作流。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="resume-list">
+                <h3>工作经历</h3>
+                <div class="resume-item">
+                    <div class="resume-date">2022.06 - 2025.06</div>
+                    <div class="resume-title">影儿时尚集团</div>
+                    <div class="resume-subtitle">摄像师 | 品牌视觉部</div>
+                    <div class="resume-desc">
+                        <li>负责集团旗下多品牌（YINER, INSUN等）季度大片与时尚视频的拍摄执行。</li>
+                        <li>独立把控商业片场灯光布置，主导模特动态视觉捕捉，提升品牌视觉格调。</li>
+                        <li>参与品牌社交媒体账号的短视频创意策划，通过 AI 工具辅助快速产出创意内容。</li>
+                    </div>
+                </div>
+                <div class="resume-item">
+                    <div class="resume-date">2020.12 - 2022.06</div>
+                    <div class="resume-title">光云传媒工作室</div>
+                    <div class="resume-subtitle">摄像师 | 项目组</div>
+                    <div class="resume-desc">
+                        <li>承接多元化商业视频项目，负责现场布光方案及分镜头脚本的高效率执行。</li>
+                        <li>协调跨部门合作，确保后期剪辑风格与拍摄初衷高度契合，达成客户预期。</li>
+                    </div>
+                </div>
+                <div class="resume-item">
+                    <div class="resume-date">2018.05 - 2020.07</div>
+                    <div class="resume-title">一杰文化传播有限公司</div>
+                    <div class="resume-subtitle">摄像助理 -> 摄像师</div>
+                    <div class="resume-desc">
+                        <li>参与大量商业影像拍摄任务，从设备维护、辅助布光到独立掌机拍摄。</li>
+                        <li>积累了扎实的现场应变能力与各类型摄像器材的使用经验。</li>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="contact-methods">
+            <a href="tel:17748669195" class="contact-item"><i data-lucide="phone" size="18"></i> 17748669195</a>
+            <a href="mailto:2990315895@qq.com" class="contact-item"><i data-lucide="mail" size="18"></i> 2990315895@qq.com</a>
+        </div>
+        <p style="font-size: 0.7rem; color: #333; margin-top: 30px; letter-spacing: 0.1em;">© 2025 CHEN MO PORTFOLIO. ALL RIGHTS RESERVED.</p>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        function handleVideoClick(frame) {
+            const video = frame.querySelector('video');
+            const videoSrc = video.getAttribute('data-src');
+            
+            if (frame.classList.contains('is-active')) {
+                if (video.paused) {
+                    const playPromise = video.play();
+                    if (playPromise !== undefined) {
+                        playPromise.catch(() => {
+                            video.muted = true;
+                            video.play();
+                        });
+                    }
+                } else {
+                    video.pause();
+                }
+                return;
+            }
+
+            if (!videoSrc) return;
+
+            frame.classList.add('is-active');
+            video.classList.add('is-playing');
+            video.controls = true;
+
+            const executePlay = () => {
+                const playPromise = video.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(() => {
+                        video.muted = true;
+                        video.play();
+                    });
+                }
+            };
+
+            if (Hls.isSupported()) {
+                const hls = new Hls();
+                hls.attachMedia(video);
+                hls.on(Hls.Events.MEDIA_ATTACHED, function() {
+                    hls.loadSource(videoSrc);
+                });
+                hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                    executePlay();
+                });
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = videoSrc;
+                video.addEventListener('loadedmetadata', executePlay, { once: true });
+            }
+        }
+
+        const lb = document.getElementById('lightbox');
+        const lbImg = document.getElementById('lightbox-img');
+        function openLightbox(src) {
+            lbImg.src = src;
+            lb.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeLightbox() {
+            lb.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        function initMarquee(wrapperId, speed) {
+            const wrapper = document.getElementById(wrapperId);
+            const content = wrapper.querySelector('.marquee-content');
+            let x = 0;
+            let isDragging = false;
+            let startX = 0;
+            let moved = false;
+
+            function animate() {
+                if (!isDragging) {
+                    x -= speed;
+                    if (Math.abs(x) >= content.scrollWidth / 2) x = 0;
+                    content.style.transform = `translateX(${x}px)`;
+                }
+                requestAnimationFrame(animate);
+            }
+            animate();
+
+            wrapper.addEventListener('mousedown', (e) => { isDragging = true; moved = false; startX = e.pageX; });
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const dx = e.pageX - startX;
+                if (Math.abs(dx) > 5) moved = true;
+                x += dx; startX = e.pageX;
+                content.style.transform = `translateX(${x}px)`;
+            });
+            window.addEventListener('mouseup', (e) => {
+                if (!isDragging) return;
+                isDragging = false;
+                if (!moved && e.target.closest('.marquee-item')) {
+                    openLightbox(e.target.closest('.marquee-item').dataset.full);
+                }
+            });
+        }
+        initMarquee('fashion-marquee-wrapper', 1.0);
+    </script>
+</body>
+</html>
