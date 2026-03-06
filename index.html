@@ -521,22 +521,30 @@
         const lb = document.getElementById('lightbox');
         const lbImg = document.getElementById('lightbox-img');
         function openLightbox(src) {
+            if (!src) return;
             lbImg.src = src;
-            lb.classList.add('active');
+            lb.style.display = 'flex';
+            setTimeout(() => lb.classList.add('active'), 10);
             document.body.style.overflow = 'hidden';
         }
         function closeLightbox() {
             lb.classList.remove('active');
+            setTimeout(() => {
+                lb.style.display = 'none';
+                lbImg.src = '';
+            }, 300);
             document.body.style.overflow = 'auto';
         }
 
-        // 统一交互逻辑：支持鼠标拖拽和移动端触摸滑动
+        // 优化后的交互逻辑：精准区分滑动与点击
         function initMarquee(wrapperId, speed) {
             const wrapper = document.getElementById(wrapperId);
             const content = wrapper.querySelector('.marquee-content');
             let x = 0;
             let isDragging = false;
             let startX = 0;
+            let startY = 0;
+            let startTime = 0;
             let moved = false;
 
             function animate() {
@@ -549,53 +557,67 @@
             }
             animate();
 
-            // 鼠标事件
-            wrapper.addEventListener('mousedown', (e) => { 
-                isDragging = true; 
-                moved = false; 
-                startX = e.pageX; 
-            });
-
-            // 触摸事件 (移动端支持)
-            wrapper.addEventListener('touchstart', (e) => {
+            // 统一处理开始
+            const handleStart = (clientX, clientY) => {
                 isDragging = true;
                 moved = false;
-                startX = e.touches[0].pageX;
-            });
+                startX = clientX;
+                startY = clientY;
+                startTime = Date.now();
+            };
 
-            window.addEventListener('mousemove', (e) => {
+            // 统一处理移动
+            const handleMove = (clientX, clientY) => {
                 if (!isDragging) return;
-                const dx = e.pageX - startX;
-                if (Math.abs(dx) > 5) moved = true;
+                const dx = clientX - startX;
+                const dy = clientY - startY;
+                
+                // 只有水平位移大于一定阈值才判定为滑动
+                if (Math.abs(dx) > 5 || Math.abs(dy) > 5) moved = true;
+                
                 x += dx; 
-                startX = e.pageX;
+                startX = clientX;
                 content.style.transform = `translateX(${x}px)`;
-            });
+            };
 
-            window.addEventListener('touchmove', (e) => {
-                if (!isDragging) return;
-                const dx = e.touches[0].pageX - startX;
-                if (Math.abs(dx) > 5) moved = true;
-                x += dx; 
-                startX = e.touches[0].pageX;
-                content.style.transform = `translateX(${x}px)`;
-            });
-
-            const endDragging = (e) => {
+            // 统一处理结束
+            const handleEnd = (e) => {
                 if (!isDragging) return;
                 isDragging = false;
-                // 如果没有明显的滑动，则触发点击放大逻辑
-                if (!moved) {
-                    const targetItem = e.target.closest('.marquee-item');
-                    if (targetItem) {
-                        openLightbox(targetItem.dataset.full);
+                const duration = Date.now() - startTime;
+                
+                // 核心逻辑：如果位移极小且点击时间短，判定为有效点击
+                if (!moved && duration < 300) {
+                    const item = e.target.closest('.marquee-item');
+                    if (item) {
+                        const fullSrc = item.getAttribute('data-full');
+                        openLightbox(fullSrc);
                     }
                 }
             };
 
-            window.addEventListener('mouseup', endDragging);
-            window.addEventListener('touchend', endDragging);
+            // 鼠标事件
+            wrapper.addEventListener('mousedown', (e) => handleStart(e.pageX, e.pageY));
+            window.addEventListener('mousemove', (e) => handleMove(e.pageX, e.pageY));
+            window.addEventListener('mouseup', handleEnd);
+
+            // 触摸事件
+            wrapper.addEventListener('touchstart', (e) => {
+                handleStart(e.touches[0].pageX, e.touches[0].pageY);
+            }, { passive: true });
+
+            window.addEventListener('touchmove', (e) => {
+                handleMove(e.touches[0].pageX, e.touches[0].pageY);
+            }, { passive: true });
+
+            window.addEventListener('touchend', (e) => {
+                // Touchend 的 target 需要通过 changedTouches 获取
+                if (e.changedTouches.length > 0) {
+                    handleEnd(e);
+                }
+            });
         }
+        
         initMarquee('fashion-marquee-wrapper', 1.0);
     </script>
 </body>
