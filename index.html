@@ -19,7 +19,14 @@
             --marquee-speed: 1; 
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            /* 解决移动端点击出现蓝色高亮方框的问题 */
+            -webkit-tap-highlight-color: transparent;
+        }
+        
         body {
             background-color: var(--bg);
             color: var(--text-main);
@@ -77,17 +84,15 @@
             display: flex;
             overflow-x: auto;
             gap: 24px;
-            padding-bottom: 30px; /* 增加底部间距以容纳更宽的感应区 */
-            margin-bottom: -15px; /* 抵消感应区对排版的影响 */
+            padding-bottom: 30px; 
+            margin-bottom: -15px; 
             scroll-snap-type: x mandatory;
             -webkit-overflow-scrolling: touch;
             justify-content: center;
             justify-content: safe center;
         }
 
-        /* 网页端滚动条点击区域优化 */
         .horizontal-scroll::-webkit-scrollbar { 
-            /* 总高度设定为 40px (18px上感应区 + 4px视觉条 + 18px下感应区) */
             height: 40px; 
         }
         .horizontal-scroll::-webkit-scrollbar-track {
@@ -96,14 +101,12 @@
         .horizontal-scroll::-webkit-scrollbar-thumb { 
             background-color: var(--primary); 
             border-radius: 20px;
-            /* 关键逻辑：利用 18px 的透明边框撑大点击感应区域 */
             border: 18px solid transparent; 
-            /* 确保背景色只填充内容区域，即中间那 4px */
             background-clip: padding-box;
             transition: background-color 0.3s;
         }
         .horizontal-scroll::-webkit-scrollbar-thumb:hover {
-            background-color: #f0c94d; /* 悬浮时稍微加亮提示 */
+            background-color: #f0c94d; 
         }
 
         .video-card { flex-shrink: 0; scroll-snap-align: start; }
@@ -135,6 +138,7 @@
             background: #000;
         }
         
+        /* 只有在播放时才显示控制条，否则隐藏 */
         video:not(.is-playing)::-webkit-media-controls {
             display: none !important;
         }
@@ -152,11 +156,14 @@
             transition: var(--transition);
             z-index: 10;
             pointer-events: none;
+            opacity: 1;
+            visibility: visible;
         }
         .video-frame:hover .play-overlay {
             background: rgba(212, 175, 55, 0.4);
             transform: translate(-50%, -50%) scale(1.1);
         }
+        /* 当 frame 处于 is-active 时隐藏覆盖层 */
         .video-frame.is-active .play-overlay {
             opacity: 0;
             visibility: hidden;
@@ -255,9 +262,19 @@
             .horizontal-scroll { justify-content: flex-start; padding-bottom: 15px; }
             .hero { height: 50vh; }
             .marquee-item { width: 200px; height: 280px; }
+            
+            /* 移动端画幅修正 */
             .video-card.portrait { width: calc(var(--v-height-mobile) * 0.5625); }
-            .video-card.landscape { width: 85vw; }
             .video-card.three-four { width: calc(var(--v-height-mobile) * 0.75); }
+            
+            /* 修正移动端横屏展示非16:9的问题 */
+            .video-card.landscape { 
+                width: 85vw; 
+            }
+            .video-card.landscape .video-frame {
+                height: auto;
+                aspect-ratio: 16 / 9;
+            }
         }
     </style>
 </head>
@@ -379,7 +396,7 @@
                 const productPosters = [
                     "https://img-uc.dogecloud.com/14748/image/1772791159/01ec1808285ab740fde8cd0c1f56bf2f.jpg?sign=1772802001-fa581184600cf458cf75660d57933c30-14748-97964c222ce82e53d02fc0da836dd288",
                     "https://img-uc.dogecloud.com/14748/image/1772791161/6d88ab7bdf112b110023ff73000173af.jpg?sign=1772802001-e52352b24e9669e9088dd33c14edfe52-14748-bb60ffea64feacb9b4828ab998d5ca7f",
-                    "https://img-uc.dogecloud.com/14748/image/1772791163/053b455cc09324615789bc1cc005c04d.jpg?sign=1772802001-e089594204183a70c1dca240468e1535-14748-548dd9231d3f7e67daf319f722b0405f",
+                    "https://img-uc.dogecloud.com/14748/image/1772791163/053b455cc09324615789bc1cc005c04d.jpg?sign=1772802001-e089594204183a70c1ca240468e1535-14748-548dd9231d3f7e67daf319f722b0405f",
                     "https://img-uc.dogecloud.com/14748/image/1772791162/827de7ba23b5f250b7d7b66cbd62dc59.jpg?sign=1772802001-04d360a4e10577e0a69640383a8fda0a-14748-c693b5b64b2f58d061ade748e70b164c"
                 ];
                 const productLayout = ['landscape', 'portrait', 'landscape', 'three-four'];
@@ -465,52 +482,53 @@
     <script>
         lucide.createIcons();
 
-        // 视频播放控制逻辑：确保同一时间只有一个视频播放
+        // 核心播放控制：确保全站只有一个活跃视频
         let currentActiveFrame = null;
 
         function handleVideoClick(frame) {
             const video = frame.querySelector('video');
             const videoSrc = video.getAttribute('data-src');
 
-            // 如果点击的是当前已经在播放的视频
+            // 1. 如果点击的是当前正在播放的视频，则切换播放/暂停状态
             if (currentActiveFrame === frame) {
-                video.paused ? video.play() : video.pause();
+                if (video.paused) {
+                    video.play();
+                } else {
+                    video.pause();
+                }
                 return;
             }
 
-            // 如果点击的是新视频，先暂停之前正在播放的视频
+            // 2. 如果点击的是一个新视频，强制暂停并重置之前那个视频的状态
             if (currentActiveFrame) {
                 const prevVideo = currentActiveFrame.querySelector('video');
                 prevVideo.pause();
-                // 可选：如果希望切掉旧视频的激活状态 UI
-                // currentActiveFrame.classList.remove('is-active');
-                // prevVideo.classList.remove('is-playing');
+                // 恢复旧视频的 UI 初始状态
+                currentActiveFrame.classList.remove('is-active');
+                prevVideo.classList.remove('is-playing');
+                prevVideo.controls = false;
             }
 
-            if (frame.classList.contains('is-active')) {
-                // 如果已经初始化过，直接播放并更新当前指针
-                currentActiveFrame = frame;
-                video.play();
-                return;
-            }
-
-            // 初始化新视频
-            if (!videoSrc) return;
-            
-            // 更新当前活动视频引用
+            // 3. 设置当前活跃的视频引用
             currentActiveFrame = frame;
-            
-            frame.classList.add('is-active');
-            video.classList.add('is-playing');
-            video.controls = true;
 
-            if (Hls.isSupported()) {
-                const hls = new Hls();
-                hls.attachMedia(video);
-                hls.on(Hls.Events.MEDIA_ATTACHED, () => hls.loadSource(videoSrc));
-                hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
+            // 4. 如果是第一次播放该视频，需要初始化
+            if (!frame.classList.contains('is-active')) {
+                frame.classList.add('is-active');
+                video.classList.add('is-playing');
+                video.controls = true;
+
+                if (Hls.isSupported()) {
+                    const hls = new Hls();
+                    hls.attachMedia(video);
+                    hls.on(Hls.Events.MEDIA_ATTACHED, () => hls.loadSource(videoSrc));
+                    hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
+                } else {
+                    video.src = videoSrc;
+                    video.play();
+                }
             } else {
-                video.src = videoSrc;
+                // 如果之前已经加载过只是被暂停了，直接播放
                 video.play();
             }
         }
@@ -529,7 +547,7 @@
             setTimeout(() => lb.classList.add('active'), 10);
             document.body.style.overflow = 'hidden';
             
-            // 打开大图预览时，暂停正在播放的视频
+            // 打开大图时暂停正在播放的视频
             if (currentActiveFrame) {
                 currentActiveFrame.querySelector('video').pause();
             }
@@ -547,14 +565,12 @@
             document.body.style.overflow = 'auto';
         }
 
-        // 统一点击处理：区分拖拽
         let globalIsMoved = false;
         function onItemClick(el, e) {
             if (globalIsMoved) return;
             openLightbox(el.getAttribute('data-full'));
         }
 
-        // 轮播逻辑优化
         function initMarquee(wrapperId, baseSpeed) {
             const wrapper = document.getElementById(wrapperId);
             const content = wrapper.querySelector('.marquee-content');
