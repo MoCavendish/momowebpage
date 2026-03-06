@@ -80,7 +80,9 @@
             padding-bottom: 20px;
             scroll-snap-type: x mandatory;
             -webkit-overflow-scrolling: touch;
+            /* 修正：使用 safe center 解决溢出时左侧内容截断问题 */
             justify-content: center;
+            justify-content: safe center;
         }
         .horizontal-scroll::-webkit-scrollbar { height: 4px; }
         .horizontal-scroll::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
@@ -528,6 +530,7 @@
             document.body.style.overflow = 'auto';
         }
 
+        // 统一交互逻辑：支持鼠标拖拽和移动端触摸滑动
         function initMarquee(wrapperId, speed) {
             const wrapper = document.getElementById(wrapperId);
             const content = wrapper.querySelector('.marquee-content');
@@ -546,21 +549,52 @@
             }
             animate();
 
-            wrapper.addEventListener('mousedown', (e) => { isDragging = true; moved = false; startX = e.pageX; });
+            // 鼠标事件
+            wrapper.addEventListener('mousedown', (e) => { 
+                isDragging = true; 
+                moved = false; 
+                startX = e.pageX; 
+            });
+
+            // 触摸事件 (移动端支持)
+            wrapper.addEventListener('touchstart', (e) => {
+                isDragging = true;
+                moved = false;
+                startX = e.touches[0].pageX;
+            });
+
             window.addEventListener('mousemove', (e) => {
                 if (!isDragging) return;
                 const dx = e.pageX - startX;
                 if (Math.abs(dx) > 5) moved = true;
-                x += dx; startX = e.pageX;
+                x += dx; 
+                startX = e.pageX;
                 content.style.transform = `translateX(${x}px)`;
             });
-            window.addEventListener('mouseup', (e) => {
+
+            window.addEventListener('touchmove', (e) => {
+                if (!isDragging) return;
+                const dx = e.touches[0].pageX - startX;
+                if (Math.abs(dx) > 5) moved = true;
+                x += dx; 
+                startX = e.touches[0].pageX;
+                content.style.transform = `translateX(${x}px)`;
+            });
+
+            const endDragging = (e) => {
                 if (!isDragging) return;
                 isDragging = false;
-                if (!moved && e.target.closest('.marquee-item')) {
-                    openLightbox(e.target.closest('.marquee-item').dataset.full);
+                // 如果没有明显的滑动，则触发点击放大逻辑
+                if (!moved) {
+                    const targetItem = e.target.closest('.marquee-item');
+                    if (targetItem) {
+                        openLightbox(targetItem.dataset.full);
+                    }
                 }
-            });
+            };
+
+            window.addEventListener('mouseup', endDragging);
+            window.addEventListener('touchend', endDragging);
         }
         initMarquee('fashion-marquee-wrapper', 1.0);
     </script>
