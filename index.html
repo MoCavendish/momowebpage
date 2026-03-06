@@ -275,7 +275,7 @@
                     "https://permalink.dogevideo.com/player/get.m3u8?vcode=ad46dfe9201737be&userId=14748&flsign=a0b4215561c294430dd155bf3963c0c2&ext=.m3u8"
                 ];
                 
-                // 更新后的时尚视频缩略图链接
+                // 时尚视频缩略图链接
                 const fashionPosters = [
                     "https://img-uc.dogecloud.com/14748/image/1772791596/60108455f2a928711d59e8c9496d313d.jpg?sign=1772805601-e78d07d9bef9a19c35809c63b86bca27-14748-fea0d3e41ab959d49b37b0b5aa8ae05a",
                     "https://img-uc.dogecloud.com/14748/image/1772791595/b965383c0bb5eb3e62124d9afbda3b45.jpg?sign=1772805601-af244a6181452b1ecbfd0832db9b08b8-14748-b0daf5b94c84ca9aaf81b755037d1880",
@@ -339,7 +339,10 @@
                                 <video class="hls-video" data-src="${aiVideoPlaceholder}" playsinline preload="none"></video>
                                 <div class="play-overlay"><i data-lucide="play" fill="currentColor"></i></div>
                             </div>
-                            <div class="video-meta"><h3>AI视觉探索 ${i.toString().padStart(2,'0')}</h3><p>Runway / MJ | 9:16</p></div>
+                            <div class="video-meta">
+                                <h3>AI视觉探索 ${i.toString().padStart(2,'0')}</h3>
+                                <p>SeeDance | 9:16</p>
+                            </div>
                         </div>
                     `);
                 }
@@ -352,7 +355,7 @@
         <div class="section-header"><div class="line"></div><h2>产品展示视频 / PRODUCT VIDEO (4)</h2><div class="line"></div></div>
         <div class="horizontal-scroll">
             <script>
-                // 包含新增视频的产品视频链接
+                // 包含产品视频链接
                 const productVideos = [
                     "https://permalink.dogevideo.com/player/get.m3u8?vcode=7ce78817e7be86f8&userId=14748&flsign=b72d3375911bdd448ed1218c7946a1dc&ext=.m3u8",
                     "https://permalink.dogevideo.com/player/get.m3u8?vcode=2b90968f9e64bc1a&userId=14748&flsign=cebc4a1b429f38e46a9c87685e380b5f&ext=.m3u8",
@@ -360,7 +363,7 @@
                     "https://permalink.dogevideo.com/player/get.m3u8?vcode=61de0dbf4c9dc72b&userId=14748&flsign=ad39e841e8fd22ac05f1c2027b48661b&ext=.m3u8"
                 ];
 
-                // 对应的缩略图链接
+                // 缩略图链接
                 const productPosters = [
                     "https://img-uc.dogecloud.com/14748/image/1772791159/01ec1808285ab740fde8cd0c1f56bf2f.jpg?sign=1772802001-fa581184600cf458cf75660d57933c30-14748-97964c222ce82e53d02fc0da836dd288",
                     "https://img-uc.dogecloud.com/14748/image/1772791161/6d88ab7bdf112b110023ff73000173af.jpg?sign=1772802001-e52352b24e9669e9088dd33c14edfe52-14748-bb60ffea64feacb9b4828ab998d5ca7f",
@@ -368,7 +371,6 @@
                     "https://img-uc.dogecloud.com/14748/image/1772791162/827de7ba23b5f250b7d7b66cbd62dc59.jpg?sign=1772802001-04d360a4e10577e0a69640383a8fda0a-14748-c693b5b64b2f58d061ade748e70b164c"
                 ];
 
-                // 布局类型对应关系
                 const productLayout = ['landscape', 'portrait', 'landscape', 'three-four'];
                 
                 productVideos.forEach((src, index) => {
@@ -415,7 +417,7 @@
                     </div>
                     <div class="skill-box">
                         <h4><i data-lucide="cpu" size="14"></i> AI 影像流</h4>
-                        <p>运用 Midjourney、Runway 等工具辅助视觉策划、风格迁移及动态生成。</p>
+                        <p>运用 Midjourney、Seedance 等工具辅助视觉策划、风格迁移及动态生成。</p>
                     </div>
                     <div class="skill-box">
                         <h4><i data-lucide="layers" size="14"></i> 后期工程</h4>
@@ -435,27 +437,18 @@
                     <div class="resume-title">影儿时尚集团</div>
                     <div class="resume-subtitle">摄像师 | 品牌视觉部</div>
                     <div class="resume-desc">
-                        <li>负责集团旗下多品牌（YINER, INSUN等）季度大片与时尚视频的拍摄执行。</li>
+                        <li>负责集团旗下品牌-诗篇PSALTER季度大片与时尚视频的拍摄执行。</li>
                         <li>独立把控商业片场灯光布置，主导模特动态视觉捕捉，提升品牌视觉格调。</li>
                         <li>参与品牌社交媒体账号的短视频创意策划，通过 AI 工具辅助快速产出创意内容。</li>
                     </div>
                 </div>
                 <div class="resume-item">
-                    <div class="resume-date">2020.12 - 2022.06</div>
+                    <div class="resume-date">2020.07 - 2022.06</div>
                     <div class="resume-title">光云传媒工作室</div>
                     <div class="resume-subtitle">摄像师 | 项目组</div>
                     <div class="resume-desc">
                         <li>承接多元化商业视频项目，负责现场布光方案及分镜头脚本的高效率执行。</li>
                         <li>协调跨部门合作，确保后期剪辑风格与拍摄初衷高度契合，达成客户预期。</li>
-                    </div>
-                </div>
-                <div class="resume-item">
-                    <div class="resume-date">2018.05 - 2020.07</div>
-                    <div class="resume-title">一杰文化传播有限公司</div>
-                    <div class="resume-subtitle">摄像助理 -> 摄像师</div>
-                    <div class="resume-desc">
-                        <li>参与大量商业影像拍摄任务，从设备维护、辅助布光到独立掌机拍摄。</li>
-                        <li>积累了扎实的现场应变能力与各类型摄像器材的使用经验。</li>
                     </div>
                 </div>
             </div>
