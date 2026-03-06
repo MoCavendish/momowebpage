@@ -196,7 +196,7 @@
             max-height: 90%;
             object-fit: contain;
             box-shadow: 0 0 50px rgba(0,0,0,1);
-            pointer-events: none;
+            pointer-events: auto;
         }
         #lightbox.active { display: flex; }
 
@@ -254,6 +254,7 @@
         </div>
     </nav>
 
+    <!-- 全屏查看器 -->
     <div id="lightbox" onclick="closeLightbox()">
         <img id="lightbox-img" src="" alt="预览图">
     </div>
@@ -520,14 +521,24 @@
 
         const lb = document.getElementById('lightbox');
         const lbImg = document.getElementById('lightbox-img');
+        let lightboxOpenTime = 0;
+
         function openLightbox(src) {
             if (!src) return;
             lbImg.src = src;
             lb.style.display = 'flex';
-            setTimeout(() => lb.classList.add('active'), 10);
+            lightboxOpenTime = Date.now();
+            
+            setTimeout(() => {
+                lb.classList.add('active');
+            }, 10);
             document.body.style.overflow = 'hidden';
         }
+
         function closeLightbox() {
+            // 防抖：如果刚打开不到 300ms 就不允许关闭，防止移动端误触
+            if (Date.now() - lightboxOpenTime < 300) return;
+
             lb.classList.remove('active');
             setTimeout(() => {
                 lb.style.display = 'none';
@@ -536,7 +547,6 @@
             document.body.style.overflow = 'auto';
         }
 
-        // 优化后的交互逻辑：精准区分滑动与点击
         function initMarquee(wrapperId, speed) {
             const wrapper = document.getElementById(wrapperId);
             const content = wrapper.querySelector('.marquee-content');
@@ -557,7 +567,6 @@
             }
             animate();
 
-            // 统一处理开始
             const handleStart = (clientX, clientY) => {
                 isDragging = true;
                 moved = false;
@@ -566,29 +575,29 @@
                 startTime = Date.now();
             };
 
-            // 统一处理移动
             const handleMove = (clientX, clientY) => {
                 if (!isDragging) return;
                 const dx = clientX - startX;
                 const dy = clientY - startY;
-                
-                // 只有水平位移大于一定阈值才判定为滑动
-                if (Math.abs(dx) > 5 || Math.abs(dy) > 5) moved = true;
-                
+                if (Math.abs(dx) > 10 || Math.abs(dy) > 10) moved = true;
                 x += dx; 
                 startX = clientX;
                 content.style.transform = `translateX(${x}px)`;
             };
 
-            // 统一处理结束
             const handleEnd = (e) => {
                 if (!isDragging) return;
                 isDragging = false;
                 const duration = Date.now() - startTime;
                 
-                // 核心逻辑：如果位移极小且点击时间短，判定为有效点击
                 if (!moved && duration < 300) {
-                    const item = e.target.closest('.marquee-item');
+                    let targetElement = e.target;
+                    if (e.changedTouches && e.changedTouches.length > 0) {
+                        const touch = e.changedTouches[0];
+                        targetElement = document.elementFromPoint(touch.clientX, touch.clientY);
+                    }
+                    
+                    const item = targetElement ? targetElement.closest('.marquee-item') : null;
                     if (item) {
                         const fullSrc = item.getAttribute('data-full');
                         openLightbox(fullSrc);
@@ -596,12 +605,10 @@
                 }
             };
 
-            // 鼠标事件
             wrapper.addEventListener('mousedown', (e) => handleStart(e.pageX, e.pageY));
             window.addEventListener('mousemove', (e) => handleMove(e.pageX, e.pageY));
             window.addEventListener('mouseup', handleEnd);
 
-            // 触摸事件
             wrapper.addEventListener('touchstart', (e) => {
                 handleStart(e.touches[0].pageX, e.touches[0].pageY);
             }, { passive: true });
@@ -611,10 +618,7 @@
             }, { passive: true });
 
             window.addEventListener('touchend', (e) => {
-                // Touchend 的 target 需要通过 changedTouches 获取
-                if (e.changedTouches.length > 0) {
-                    handleEnd(e);
-                }
+                handleEnd(e);
             });
         }
         
