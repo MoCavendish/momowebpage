@@ -23,7 +23,6 @@
             margin: 0; 
             padding: 0; 
             box-sizing: border-box; 
-            /* 解决移动端点击出现蓝色高亮方框的问题 */
             -webkit-tap-highlight-color: transparent;
         }
         
@@ -35,7 +34,6 @@
             overflow-x: hidden;
         }
 
-        /* 导航 */
         nav {
             position: fixed;
             top: 0; width: 100%; z-index: 1000;
@@ -49,7 +47,6 @@
         .nav-links a { text-decoration: none; color: var(--text-dim); font-size: 0.8rem; letter-spacing: 0.1em; transition: var(--transition); }
         .nav-links a:hover { color: var(--primary); }
 
-        /* Hero 区域 */
         .hero {
             height: 60vh; 
             display: flex; flex-direction: column; justify-content: center; align-items: center;
@@ -79,7 +76,6 @@
         .section-header h2 { font-size: 1.1rem; letter-spacing: 0.2em; color: var(--primary); white-space: nowrap; }
         .line { height: 1px; flex-grow: 1; background: rgba(255,255,255,0.1); max-width: 300px; }
 
-        /* 视频展示区滚动条优化 */
         .horizontal-scroll {
             display: flex;
             overflow-x: auto;
@@ -88,8 +84,7 @@
             margin-bottom: -15px; 
             scroll-snap-type: x mandatory;
             -webkit-overflow-scrolling: touch;
-            justify-content: center;
-            justify-content: safe center;
+            justify-content: flex-start;
         }
 
         .horizontal-scroll::-webkit-scrollbar { 
@@ -110,16 +105,10 @@
         }
 
         .video-card { flex-shrink: 0; scroll-snap-align: start; }
+        /* 响应式宽度计算 */
         .video-card.portrait { width: calc(var(--v-height) * 0.5625); }
         .video-card.landscape { width: calc(var(--v-height) * 1.7777); }
         .video-card.three-four { width: calc(var(--v-height) * 0.75); }
-
-        .video-meta {
-            margin-top: 15px;
-            text-align: left;
-        }
-        .video-meta h3 { font-size: 0.9rem; font-weight: 500; margin-bottom: 4px; }
-        .video-meta p { font-size: 0.75rem; color: var(--text-dim); }
 
         .video-frame {
             position: relative;
@@ -138,7 +127,6 @@
             background: #000;
         }
         
-        /* 只有在播放时才显示控制条，否则隐藏 */
         video:not(.is-playing)::-webkit-media-controls {
             display: none !important;
         }
@@ -157,19 +145,23 @@
             z-index: 10;
             pointer-events: none;
             opacity: 1;
-            visibility: visible;
         }
         .video-frame:hover .play-overlay {
             background: rgba(212, 175, 55, 0.4);
             transform: translate(-50%, -50%) scale(1.1);
         }
-        /* 当 frame 处于 is-active 时隐藏覆盖层 */
         .video-frame.is-active .play-overlay {
             opacity: 0;
             visibility: hidden;
         }
 
-        /* 无限流动图片展示 */
+        .video-meta {
+            margin-top: 15px;
+            text-align: left;
+        }
+        .video-meta h3 { font-size: 0.9rem; font-weight: 500; margin-bottom: 4px; }
+        .video-meta p { font-size: 0.75rem; color: var(--text-dim); }
+
         .marquee-wrapper {
             position: relative;
             width: 100vw;
@@ -181,14 +173,12 @@
             touch-action: pan-y;
         }
         .marquee-wrapper:active { cursor: grabbing; }
-        
         .marquee-content {
             display: flex;
             gap: 20px;
             width: max-content;
             will-change: transform;
         }
-
         .marquee-item {
             width: 300px;
             height: 400px;
@@ -207,7 +197,6 @@
         }
         .marquee-item:hover img { transform: scale(1.05); }
 
-        /* 全屏查看器 Lightbox */
         #lightbox {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -227,7 +216,6 @@
         }
         #lightbox.active { display: flex; }
 
-        /* 关于我与经历 */
         .about-content { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 60px; margin-top: 20px; }
         .about-text h3, .resume-list h3 { color: var(--primary); margin-bottom: 20px; font-size: 1.2rem; border-bottom: 1px solid rgba(212,175,55,0.3); display: inline-block; padding-bottom: 5px; width: max-content; }
         .about-text p { color: #ccc; font-size: 0.95rem; margin-bottom: 1.5rem; text-align: justify; line-height: 1.8; }
@@ -254,27 +242,23 @@
         .contact-item:hover { color: var(--primary); }
 
         @media (max-width: 992px) { .about-content { grid-template-columns: 1fr; } }
+        
         @media (max-width: 768px) {
             :root { --v-height: var(--v-height-mobile); }
             .section-header { justify-content: flex-start; }
             .section-header .line:first-child { display: none; }
             .section-header .line:last-child { max-width: none; }
             .horizontal-scroll { justify-content: flex-start; padding-bottom: 15px; }
-            .hero { height: 50vh; }
-            .marquee-item { width: 200px; height: 280px; }
             
-            /* 移动端画幅修正 */
+            /* 修正移动端：统一所有视频卡片的物理高度 */
+            .video-frame {
+                height: var(--v-height-mobile) !important;
+            }
             .video-card.portrait { width: calc(var(--v-height-mobile) * 0.5625); }
             .video-card.three-four { width: calc(var(--v-height-mobile) * 0.75); }
+            .video-card.landscape { width: calc(var(--v-height-mobile) * 1.7777); }
             
-            /* 修正移动端横屏展示非16:9的问题 */
-            .video-card.landscape { 
-                width: 85vw; 
-            }
-            .video-card.landscape .video-frame {
-                height: auto;
-                aspect-ratio: 16 / 9;
-            }
+            .marquee-item { width: 200px; height: 280px; }
         }
     </style>
 </head>
@@ -291,7 +275,6 @@
         </div>
     </nav>
 
-    <!-- 全屏预览 -->
     <div id="lightbox" onclick="closeLightbox()">
         <img id="lightbox-img" src="" alt="预览图">
     </div>
@@ -301,6 +284,7 @@
         <p>Fashion Videographer & AI Visuals Creator</p>
     </section>
 
+    <!-- 时尚视频区 -->
     <section id="fashion-video" class="section">
         <div class="section-header"><div class="line"></div><h2>时尚视觉视频 / FASHION VIDEO (5)</h2><div class="line"></div></div>
         <div class="horizontal-scroll">
@@ -335,6 +319,7 @@
         </div>
     </section>
 
+    <!-- 时尚平面区 -->
     <section id="fashion-photo" class="section">
         <div class="section-header"><div class="line"></div><h2>时尚视觉平面 / FASHION PHOTO</h2><div class="line"></div></div>
         <div class="marquee-wrapper" id="fashion-marquee-wrapper">
@@ -360,6 +345,7 @@
         </div>
     </section>
 
+    <!-- AI 生成作品区 -->
     <section id="ai-video" class="section">
         <div class="section-header"><div class="line"></div><h2>AI生成作品 / AI GENERATED (4)</h2><div class="line"></div></div>
         <div class="horizontal-scroll">
@@ -383,6 +369,7 @@
         </div>
     </section>
 
+    <!-- 产品展示视频区 (关键修复区) -->
     <section id="product-video" class="section">
         <div class="section-header"><div class="line"></div><h2>产品展示视频 / PRODUCT VIDEO (4)</h2><div class="line"></div></div>
         <div class="horizontal-scroll">
@@ -419,6 +406,7 @@
         </div>
     </section>
 
+    <!-- 关于我区 -->
     <section id="about" class="section">
         <div class="section-header"><div class="line"></div><h2>关于我与经历 / BIOGRAPHY</h2><div class="line"></div></div>
         <div class="about-content">
@@ -482,37 +470,27 @@
     <script>
         lucide.createIcons();
 
-        // 核心播放控制：确保全站只有一个活跃视频
         let currentActiveFrame = null;
 
         function handleVideoClick(frame) {
             const video = frame.querySelector('video');
             const videoSrc = video.getAttribute('data-src');
 
-            // 1. 如果点击的是当前正在播放的视频，则切换播放/暂停状态
             if (currentActiveFrame === frame) {
-                if (video.paused) {
-                    video.play();
-                } else {
-                    video.pause();
-                }
+                video.paused ? video.play() : video.pause();
                 return;
             }
 
-            // 2. 如果点击的是一个新视频，强制暂停并重置之前那个视频的状态
             if (currentActiveFrame) {
                 const prevVideo = currentActiveFrame.querySelector('video');
                 prevVideo.pause();
-                // 恢复旧视频的 UI 初始状态
                 currentActiveFrame.classList.remove('is-active');
                 prevVideo.classList.remove('is-playing');
                 prevVideo.controls = false;
             }
 
-            // 3. 设置当前活跃的视频引用
             currentActiveFrame = frame;
 
-            // 4. 如果是第一次播放该视频，需要初始化
             if (!frame.classList.contains('is-active')) {
                 frame.classList.add('is-active');
                 video.classList.add('is-playing');
@@ -528,12 +506,10 @@
                     video.play();
                 }
             } else {
-                // 如果之前已经加载过只是被暂停了，直接播放
                 video.play();
             }
         }
 
-        // Lightbox 预览逻辑
         const lb = document.getElementById('lightbox');
         const lbImg = document.getElementById('lightbox-img');
         let lightboxActive = false;
@@ -546,11 +522,7 @@
             lightboxActive = true;
             setTimeout(() => lb.classList.add('active'), 10);
             document.body.style.overflow = 'hidden';
-            
-            // 打开大图时暂停正在播放的视频
-            if (currentActiveFrame) {
-                currentActiveFrame.querySelector('video').pause();
-            }
+            if (currentActiveFrame) currentActiveFrame.querySelector('video').pause();
         }
 
         function closeLightbox() {
@@ -604,14 +576,11 @@
                 content.style.transform = `translateX(${x}px)`;
             };
 
-            const onEnd = () => {
-                isDragging = false;
-            };
+            const onEnd = () => isDragging = false;
 
             wrapper.addEventListener('mousedown', e => onStart(e.pageX));
             window.addEventListener('mousemove', e => onMove(e.pageX));
             window.addEventListener('mouseup', onEnd);
-            
             wrapper.addEventListener('touchstart', e => onStart(e.touches[0].clientX), {passive: true});
             window.addEventListener('touchmove', e => onMove(e.touches[0].clientX), {passive: true});
             window.addEventListener('touchend', onEnd);
