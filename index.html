@@ -34,17 +34,18 @@
             overflow-x: hidden;
         }
 
+        /* 导航栏优化 */
         nav {
             position: fixed;
             top: 0; width: 100%; z-index: 1000;
-            padding: 30px 5%;
+            padding: 15px 5%; /* 高度缩减 */
             display: flex; justify-content: space-between; align-items: center;
             background: linear-gradient(to bottom, rgba(10,10,10,0.9), transparent);
             backdrop-filter: blur(10px);
         }
         .logo { font-weight: 700; letter-spacing: 0.3em; color: var(--primary); }
         .nav-links { display: flex; gap: 25px; }
-        .nav-links a { text-decoration: none; color: var(--text-dim); font-size: 0.8rem; letter-spacing: 0.1em; transition: var(--transition); }
+        .nav-links a { text-decoration: none; color: var(--text-dim); font-size: 0.8rem; letter-spacing: 0.1em; transition: var(--transition); white-space: nowrap; }
         .nav-links a:hover { color: var(--primary); }
 
         .hero {
@@ -267,6 +268,26 @@
         
         @media (max-width: 768px) {
             :root { --v-height: var(--v-height-mobile); }
+            
+            /* 移动端导航排版优化 */
+            nav {
+                padding: 8px 3%; /* 高度显著缩减 */
+                flex-direction: column;
+                gap: 5px;
+            }
+            .logo { font-size: 0.8rem; letter-spacing: 0.2em; margin-bottom: 2px; }
+            .nav-links {
+                width: 100%;
+                gap: 0;
+                justify-content: space-around; /* 均匀排布5个板块 */
+                padding: 0;
+            }
+            .nav-links a {
+                font-size: 0.65rem; /* 略微减小文字以适应一行 */
+                padding: 5px 0;
+                letter-spacing: 0;
+            }
+
             .section-header { justify-content: flex-start; }
             .section-header .line:first-child { display: none; }
             .section-header .line:last-child { max-width: none; }
@@ -312,8 +333,7 @@
         <div class="section-header"><div class="line"></div><h2>时尚视觉视频 / FASHION VIDEO (5)</h2><div class="line"></div></div>
         <div class="horizontal-scroll">
             <script>
-                // 使用 jsDelivr CDN 加速 GitHub 资源
-                const CDN_BASE = "https://cdn.jsdelivr.net/gh/MoCavendish/momowebpage@main/images/";
+                const CDN_BASE = "https://fastly.jsdelivr.net/gh/MoCavendish/momowebpage@main/images/";
 
                 const fashionVideos = [
                     "https://permalink.dogevideo.com/player/get.m3u8?vcode=07e08b5c4a577628&userId=14748&flsign=815c0f8de1d44441f2ea259dd448fa87&ext=.m3u8",
