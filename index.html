@@ -34,11 +34,11 @@
             overflow-x: hidden;
         }
 
-        /* 导航栏优化 */
+        /* 导航栏样式 */
         nav {
             position: fixed;
             top: 0; width: 100%; z-index: 1000;
-            padding: 15px 5%; /* 高度缩减 */
+            padding: 15px 5%;
             display: flex; justify-content: space-between; align-items: center;
             background: linear-gradient(to bottom, rgba(10,10,10,0.9), transparent);
             backdrop-filter: blur(10px);
@@ -74,6 +74,7 @@
             margin-bottom: 40px;
             display: flex; align-items: center; justify-content: center; gap: 20px;
         }
+        /* 网页端保持原有间距 0.2em */
         .section-header h2 { font-size: 1.1rem; letter-spacing: 0.2em; color: var(--primary); white-space: nowrap; }
         .line { height: 1px; flex-grow: 1; background: rgba(255,255,255,0.1); max-width: 300px; }
 
@@ -287,9 +288,12 @@
                 letter-spacing: 0;
             }
 
+            /* 移动端标题字间距优化：缩小字号和字间距以防止换行 */
+            .section-header h2 { font-size: 0.95rem; letter-spacing: 0.02em; }
             .section-header { justify-content: flex-start; }
             .section-header .line:first-child { display: none; }
             .section-header .line:last-child { max-width: none; }
+
             .video-frame { height: var(--v-height-mobile) !important; }
             .video-card.portrait { width: calc(var(--v-height-mobile) * 0.5625); }
             .video-card.four-three { width: calc(var(--v-height-mobile) * 1.3333); }
@@ -609,8 +613,6 @@
             const wrapper = document.getElementById(wrapperId);
             const content = wrapper.querySelector('.marquee-content');
             
-            // 将初始 x 设置为内容宽度的一半（即第二组循环的起点）
-            // 这样左右滑动都有内容，不会出现空白
             let x = -(content.scrollWidth / 2); 
             let isDragging = false, startX = 0;
 
@@ -619,7 +621,6 @@
                     const speedMultiplier = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--marquee-speed')) || 0;
                     if (speedMultiplier > 0) {
                         x -= baseSpeed * speedMultiplier;
-                        // 循环逻辑：当滚动超过一半时，无感重置
                         if (Math.abs(x) >= content.scrollWidth / 2) x = 0;
                         content.style.transform = `translateX(${x}px)`;
                     }
@@ -627,7 +628,6 @@
                 requestAnimationFrame(animate);
             }
             
-            // 等待图片加载完成计算出准确的 scrollWidth
             window.addEventListener('load', () => {
                 x = -(content.scrollWidth / 2);
                 content.style.transform = `translateX(${x}px)`;
@@ -646,7 +646,6 @@
                 if (Math.abs(dx) > 5) globalIsMoved = true; 
                 x += dx;
                 
-                // 拖拽时的边界循环处理
                 if (x > 0) x = -(content.scrollWidth / 2);
                 if (Math.abs(x) >= content.scrollWidth / 2) x = 0;
                 
