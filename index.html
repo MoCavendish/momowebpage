@@ -373,7 +373,7 @@
                     const fashionPhotoLinks = [
                         "https://bsyimg.luoca.net/imgtc/20260307/fdbf4accad773e1db1a3ae86aecdbe4d.webp",
                         "https://bsyimg.luoca.net/imgtc/20260307/deb552b9731cd32c85ab8ba7a2d2d797.webp",
-                        "https://bsyimg.luoca.net/imgtc/20260307/c1b5cb56c7f2c205c9883113b55d3169.webp",
+                        "https://bsyimg.luoca.net/imgtc/20260307/117284f4c7265b6a5e7802f1aecdbcca.webp",
                         "https://bsyimg.luoca.net/imgtc/20260307/3c450bf90300c8e906c0ff70b2b9481f.webp",
                         "https://bsyimg.luoca.net/imgtc/20260307/995455fe165471e15ace67af395c8feb.webp",
                         "https://bsyimg.luoca.net/imgtc/20260307/68367885a35a64decf798bdc1a52c674.webp",
@@ -608,20 +608,31 @@
         function initMarquee(wrapperId, baseSpeed) {
             const wrapper = document.getElementById(wrapperId);
             const content = wrapper.querySelector('.marquee-content');
-            let x = 0, isDragging = false, startX = 0;
+            
+            // 将初始 x 设置为内容宽度的一半（即第二组循环的起点）
+            // 这样左右滑动都有内容，不会出现空白
+            let x = -(content.scrollWidth / 2); 
+            let isDragging = false, startX = 0;
 
             function animate() {
                 if (!isDragging) {
                     const speedMultiplier = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--marquee-speed')) || 0;
                     if (speedMultiplier > 0) {
                         x -= baseSpeed * speedMultiplier;
+                        // 循环逻辑：当滚动超过一半时，无感重置
                         if (Math.abs(x) >= content.scrollWidth / 2) x = 0;
                         content.style.transform = `translateX(${x}px)`;
                     }
                 }
                 requestAnimationFrame(animate);
             }
-            animate();
+            
+            // 等待图片加载完成计算出准确的 scrollWidth
+            window.addEventListener('load', () => {
+                x = -(content.scrollWidth / 2);
+                content.style.transform = `translateX(${x}px)`;
+                animate();
+            });
 
             const onStart = (clientX) => {
                 isDragging = true;
@@ -634,6 +645,11 @@
                 const dx = clientX - startX;
                 if (Math.abs(dx) > 5) globalIsMoved = true; 
                 x += dx;
+                
+                // 拖拽时的边界循环处理
+                if (x > 0) x = -(content.scrollWidth / 2);
+                if (Math.abs(x) >= content.scrollWidth / 2) x = 0;
+                
                 startX = clientX;
                 content.style.transform = `translateX(${x}px)`;
             };
