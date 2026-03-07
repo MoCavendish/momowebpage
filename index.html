@@ -269,9 +269,8 @@
         @media (max-width: 768px) {
             :root { --v-height: var(--v-height-mobile); }
             
-            /* 移动端导航排版优化 */
             nav {
-                padding: 8px 3%; /* 高度显著缩减 */
+                padding: 8px 3%; 
                 flex-direction: column;
                 gap: 5px;
             }
@@ -279,11 +278,11 @@
             .nav-links {
                 width: 100%;
                 gap: 0;
-                justify-content: space-around; /* 均匀排布5个板块 */
+                justify-content: space-around; 
                 padding: 0;
             }
             .nav-links a {
-                font-size: 0.65rem; /* 略微减小文字以适应一行 */
+                font-size: 0.65rem; 
                 padding: 5px 0;
                 letter-spacing: 0;
             }
@@ -333,9 +332,6 @@
         <div class="section-header"><div class="line"></div><h2>时尚视觉视频 / FASHION VIDEO (5)</h2><div class="line"></div></div>
         <div class="horizontal-scroll">
             <script>
-                // 替换为 gcore.jsdelivr.net 加速链接
-                const CDN_BASE = "https://gcore.jsdelivr.net/gh/MoCavendish/momowebpage@main/images/";
-
                 const fashionVideos = [
                     "https://permalink.dogevideo.com/player/get.m3u8?vcode=07e08b5c4a577628&userId=14748&flsign=815c0f8de1d44441f2ea259dd448fa87&ext=.m3u8",
                     "https://permalink.dogevideo.com/player/get.m3u8?vcode=c9cc489dcd6cf243&userId=14748&flsign=a3f47ce9eca367a3baaa2011c2a06c95&ext=.m3u8",
@@ -345,11 +341,11 @@
                 ];
 
                 const fashionPosters = [
-                    CDN_BASE + "S1.jpg",
-                    CDN_BASE + "S2.jpg",
-                    CDN_BASE + "S3.jpg",
-                    CDN_BASE + "S4.jpg",
-                    CDN_BASE + "S5.jpg"
+                    "https://bsyimg.luoca.net/imgtc/20260307/ea910963f4bd7040eac1431ea34be3e1.webp",
+                    "https://bsyimg.luoca.net/imgtc/20260307/da738c57daa0321b65ed9c4e6bff6101.webp",
+                    "https://bsyimg.luoca.net/imgtc/20260307/65c0047391c344beb546242b8b14dd87.webp",
+                    "https://bsyimg.luoca.net/imgtc/20260307/8ea13bebc1000eed4f4b65e0849b23e2.webp",
+                    "https://bsyimg.luoca.net/imgtc/20260307/69c62fd44f5fc2143d87e7e0451e3684.webp"
                 ];
 
                 fashionVideos.forEach((src, index) => {
@@ -374,12 +370,22 @@
         <div class="marquee-wrapper" id="fashion-marquee-wrapper">
             <div class="marquee-content">
                 <script>
-                    const imgs = [];
-                    for(let i=1; i<=10; i++) {
-                        imgs.push(CDN_BASE + `P${i}.jpg`);
-                    }
+                    const fashionPhotoLinks = [
+                        "https://bsyimg.luoca.net/imgtc/20260307/fdbf4accad773e1db1a3ae86aecdbe4d.webp",
+                        "https://bsyimg.luoca.net/imgtc/20260307/deb552b9731cd32c85ab8ba7a2d2d797.webp",
+                        "https://bsyimg.luoca.net/imgtc/20260307/c1b5cb56c7f2c205c9883113b55d3169.webp",
+                        "https://bsyimg.luoca.net/imgtc/20260307/3c450bf90300c8e906c0ff70b2b9481f.webp",
+                        "https://bsyimg.luoca.net/imgtc/20260307/995455fe165471e15ace67af395c8feb.webp",
+                        "https://bsyimg.luoca.net/imgtc/20260307/68367885a35a64decf798bdc1a52c674.webp",
+                        "https://bsyimg.luoca.net/imgtc/20260307/7aef56f355abf09052729749adf61a26.webp",
+                        "https://bsyimg.luoca.net/imgtc/20260307/118c8c2cfae43621502a5d237c05acf9.webp",
+                        "https://bsyimg.luoca.net/imgtc/20260307/ea1c1af8a8b04e438e6ef75f14ac03b3.webp",
+                        "https://bsyimg.luoca.net/imgtc/20260307/3012c9d9a7a90f639352b16209b4d451.webp"
+                    ];
                     
-                    [...imgs, ...imgs].forEach(src => {
+                    const allFashionPhotos = [...fashionPhotoLinks, ...fashionPhotoLinks];
+                    
+                    allFashionPhotos.forEach(src => {
                         document.write(`
                             <div class="marquee-item" onclick="onItemClick(this, event)" data-full="${src}">
                                 <img src="${src}" onerror="this.src='https://via.placeholder.com/300x400?text=Fashion+Photo'">
@@ -393,25 +399,40 @@
 
     <!-- AI 生成作品区 -->
     <section id="ai-video" class="section">
-        <div class="section-header"><div class="line"></div><h2>AI生成作品 / AI GENERATED (4)</h2><div class="line"></div></div>
+        <div class="section-header"><div class="line"></div><h2>AI生成作品 / AI GENERATED (5)</h2><div class="line"></div></div>
         <div class="horizontal-scroll">
             <script>
-                const aiVideoPlaceholder = "https://permalink.dogevideo.com/player/get.m3u8?vcode=07e08b5c4a577628&userId=14748&flsign=815c0f8de1d44441f2ea259dd448fa87&ext=.m3u8";
-                for(let i=1; i<=4; i++) {
-                    let aiPoster = CDN_BASE + `S1.jpg`; 
+                const aiVideos = [
+                    "https://permalink.dogevideo.com/player/get.m3u8?vcode=376e585cfe76c209&userId=14748&flsign=65374b7fb784f5794d9b08d6b9529f2e&ext=.m3u8",
+                    "https://permalink.dogevideo.com/player/get.m3u8?vcode=8fd8f85d1bd88a2b&userId=14748&flsign=489f4b5ab3496949a9513a6b63f3fa4e&ext=.m3u8",
+                    "https://permalink.dogevideo.com/player/get.m3u8?vcode=0c9c5e4408d4c308&userId=14748&flsign=64e9eafc8a286f2da5a6fa9fdf50ea70&ext=.m3u8",
+                    "https://permalink.dogevideo.com/player/get.m3u8?vcode=4c549f2f11c285b9&userId=14748&flsign=fd5be9643feae7e6d63cb0257d91db72&ext=.m3u8",
+                    "https://permalink.dogevideo.com/player/get.m3u8?vcode=483571cec45582c2&userId=14748&flsign=17787f01e69cd752cc90ff029e99fcde&ext=.m3u8"
+                ];
+
+                const aiPosters = [
+                    "https://bsyimg.luoca.net/imgtc/20260307/ec900db9f3e99ccacfa406fe9bb07526.webp",
+                    "https://bsyimg.luoca.net/imgtc/20260307/ea7daa5955db5a44b3137ec44a7fcb3d.webp",
+                    "https://bsyimg.luoca.net/imgtc/20260307/6fdb8aacf23bc07bb32464c84343eb85.webp",
+                    "https://bsyimg.luoca.net/imgtc/20260307/f60ae21db375dcafe63d5df03c538d32.webp",
+                    "https://bsyimg.luoca.net/imgtc/20260307/95170551d80f59d7a800eb211232a6ca.webp"
+                ];
+
+                aiVideos.forEach((src, index) => {
+                    const poster = aiPosters[index];
                     document.write(`
                         <div class="video-card portrait">
-                            <div class="video-frame" onclick="openVideoLightbox('${aiVideoPlaceholder}')">
-                                <img src="${aiPoster}" alt="Poster" onerror="this.src='${CDN_BASE}S1.jpg'">
+                            <div class="video-frame" onclick="openVideoLightbox('${src}')">
+                                <img src="${poster}" alt="Poster" onerror="this.src='https://via.placeholder.com/600x800?text=AI+Visual'">
                                 <div class="play-overlay"><i data-lucide="play" fill="currentColor"></i></div>
                             </div>
                             <div class="video-meta">
-                                <h3>AI视觉探索 ${i.toString().padStart(2,'0')}</h3>
+                                <h3>AI视觉探索 ${(index + 1).toString().padStart(2,'0')}</h3>
                                 <p>SeeDance | 9:16</p>
                             </div>
                         </div>
                     `);
-                }
+                });
             </script>
         </div>
     </section>
@@ -429,10 +450,10 @@
                 ];
                 
                 const productPosters = [
-                    CDN_BASE + "C1.jpg",
-                    CDN_BASE + "C2.jpg",
-                    CDN_BASE + "C3.jpg",
-                    CDN_BASE + "C4.jpg"
+                    "https://bsyimg.luoca.net/imgtc/20260307/e6d38d6ec161ef0829ec754ef4362c27.webp",
+                    "https://bsyimg.luoca.net/imgtc/20260307/36c56e3122dd80b99768ead22501ecf6.webp",
+                    "https://bsyimg.luoca.net/imgtc/20260307/4f7e5f454b31c5869d80d378f0a4befa.webp",
+                    "https://bsyimg.luoca.net/imgtc/20260307/223805b4bf792adb2a6cf950e51f92e9.webp"
                 ];
 
                 const productLayout = ['four-three', 'portrait', 'four-three', 'three-four'];
