@@ -137,6 +137,7 @@
             margin-bottom: 20px; 
             font-weight: 300;
             width: 100%;
+            color: var(--primary);
         }
         .hero p { 
             color: var(--text-dim); 
@@ -154,8 +155,10 @@
             margin-bottom: 40px;
             display: flex; align-items: center; justify-content: center; gap: 20px;
         }
-        .section-header h2 { font-size: 1.1rem; letter-spacing: 0.2em; color: var(--primary); white-space: nowrap; transition: opacity 0.3s; }
-        .line { height: 1px; flex-grow: 1; background: rgba(255,255,255,0.1); max-width: 300px; }
+
+        .section-header h2 { font-size: 1.35rem; letter-spacing: 0.2em; color: var(--primary); white-space: nowrap; transition: opacity 0.3s; font-weight: 500; }
+        /* 线条透明度进一步降低至 0.35 */
+        .line { height: 1px; flex-grow: 1; background: var(--primary); opacity: 0.35; max-width: 300px; }
 
         .horizontal-scroll {
             display: flex;
@@ -343,7 +346,8 @@
         .skill-box p { font-size: 0.78rem; color: var(--text-dim); line-height: 1.5; }
 
         footer { padding: 60px 5%; background: #050505; text-align: center; border-top: 1px solid #111; }
-        .footer-title { color: var(--primary); font-size: 0.8rem; letter-spacing: 0.3em; margin-bottom: 25px; text-transform: uppercase; }
+        /* 将页脚标题稍微放大一点，从 0.8rem 提升到 1.0rem */
+        .footer-title { color: var(--primary); font-size: 1.0rem; letter-spacing: 0.3em; margin-bottom: 25px; text-transform: uppercase; }
         .contact-methods { display: flex; justify-content: center; gap: 40px; margin-top: 10px; flex-wrap: wrap; }
         .contact-item { text-decoration: none; color: var(--text-dim); font-size: 0.9rem; display: flex; align-items: center; gap: 10px; transition: var(--transition); white-space: nowrap; }
         .contact-item:hover { color: var(--primary); }
@@ -364,13 +368,17 @@
             .hero h1 { text-indent: 0.5em; }
             .hero p { text-indent: 0.3em; font-size: 0.75rem; }
 
-            /* 优化移动端标题隔断线：加粗并居中显示 */
-            .section-header h2 { font-size: 0.95rem; letter-spacing: 0.02em; }
-            .section-header { justify-content: center; gap: 12px; }
+            .section-header h2 { font-size: 1.25rem; letter-spacing: 0.05em; font-weight: 500; }
+            .section-header { justify-content: center; gap: 14px; margin-bottom: 30px; }
+            /* 移动端线条透明度下调至 0.4 */
             .section-header .line { 
-                height: 1.5px; /* 加粗到 1.5px 提高可见度 */
-                background: rgba(255,255,255,0.15); /* 略微提升不透明度 */
-                display: block !important; /* 确保双侧显示 */
+                height: 1px !important; 
+                background: var(--primary) !important; 
+                opacity: 0.4 !important;
+                display: block !important; 
+                flex-grow: 1;
+                max-width: 20%; 
+                min-width: 25px; 
             }
 
             .video-frame { height: var(--v-height-mobile) !important; }
@@ -383,7 +391,6 @@
 
             .skills-grid { grid-template-columns: 1fr; }
             
-            /* 解决移动端页脚联系方式换行：强制单行并缩放 */
             .contact-methods { 
                 gap: 20px; 
                 flex-direction: row; 
@@ -650,7 +657,7 @@
                 skills: [
                     { icon: 'camera', title: '拍摄执行', desc: '精通各类主流摄像机操作，擅长多灯位布光设计与电影感画面构图。' },
                     { icon: 'cpu', title: 'AI 影像流', desc: '运用 Midjourney、Seedance 等工具辅助视觉策划、风格迁移及动态生成。' },
-                    { icon: 'layers', title: '后期工程', desc: '熟练使用 Premiere、DaVinci Resolve 进行高质量剪辑、调色及多机位处理。' },
+                    { icon: 'layers', title: 'layers', desc: '熟练使用 Premiere、DaVinci Resolve 进行高质量剪辑、调色及多机位处理。' },
                     { icon: 'globe', title: '跨国协作', desc: '具备良好的跨文化沟通能力，适应海外片场环境及双语工作流。' }
                 ],
                 experience: [
