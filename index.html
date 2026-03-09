@@ -64,8 +64,11 @@
             transition: var(--transition);
             background: rgba(255,255,255,0.05);
             flex-shrink: 0;
+            user-select: none;
         }
         .lang-switch:hover { background: var(--primary); color: #000; }
+        /* 解决点击后维持金色的问题：添加 active 状态并在点击瞬间反馈，点击后恢复 */
+        .lang-switch:active { transform: scale(0.95); opacity: 0.7; }
 
         /* 移动端导航栏高度缩减 + 元素逆向放大版 */
         @media (max-width: 768px) {
@@ -350,7 +353,9 @@
         .footer-title { color: var(--primary); font-size: 1.0rem; letter-spacing: 0.3em; margin-bottom: 25px; text-transform: uppercase; }
         .contact-methods { display: flex; justify-content: center; gap: 40px; margin-top: 10px; flex-wrap: wrap; }
         .contact-item { text-decoration: none; color: var(--text-dim); font-size: 0.9rem; display: flex; align-items: center; gap: 10px; transition: var(--transition); white-space: nowrap; }
+        /* 修复联系方式点击后维持金色的问题：明确 hover 后的颜色，并添加 active 瞬时反馈 */
         .contact-item:hover { color: var(--primary); }
+        .contact-item:active { color: #fff; transform: scale(0.98); }
         
         .icon-wechat { color: var(--wechat-green) !important; }
 
@@ -659,7 +664,7 @@
                 skills: [
                     { icon: 'camera', title: '拍摄执行', desc: '精通各类主流摄像机操作，擅长多灯位布光设计与电影感画面构图。' },
                     { icon: 'cpu', title: 'AI 影像流', desc: '运用 Midjourney、Seedance 等工具辅助视觉策划、风格迁移及动态生成。' },
-                    { icon: 'layers', title: 'layers', desc: '熟练使用 Premiere、DaVinci Resolve 进行高质量剪辑、调色及多机位处理。' },
+                    { icon: 'layers', title: '后期制作', desc: '熟练使用 Premiere、DaVinci Resolve 进行高质量剪辑、调色及多机位处理。' },
                     { icon: 'globe', title: '跨国协作', desc: '具备良好的跨文化沟通能力，适应海外片场环境及双语工作流。' }
                 ],
                 experience: [
