@@ -364,10 +364,14 @@
             .hero h1 { text-indent: 0.5em; }
             .hero p { text-indent: 0.3em; font-size: 0.75rem; }
 
+            /* 优化移动端标题隔断线：加粗并居中显示 */
             .section-header h2 { font-size: 0.95rem; letter-spacing: 0.02em; }
-            .section-header { justify-content: flex-start; }
-            .section-header .line:first-child { display: none; }
-            .section-header .line:last-child { max-width: none; }
+            .section-header { justify-content: center; gap: 12px; }
+            .section-header .line { 
+                height: 1.5px; /* 加粗到 1.5px 提高可见度 */
+                background: rgba(255,255,255,0.15); /* 略微提升不透明度 */
+                display: block !important; /* 确保双侧显示 */
+            }
 
             .video-frame { height: var(--v-height-mobile) !important; }
             .video-card.portrait { width: calc(var(--v-height-mobile) * 0.5625); }
@@ -382,10 +386,10 @@
             /* 解决移动端页脚联系方式换行：强制单行并缩放 */
             .contact-methods { 
                 gap: 20px; 
-                flex-direction: row; /* 强制横向排布 */
-                flex-wrap: nowrap; /* 禁止换行 */
+                flex-direction: row; 
+                flex-wrap: nowrap; 
                 justify-content: center; 
-                transform: scale(0.85); /* 整体等比缩小 */
+                transform: scale(0.85); 
                 transform-origin: center top; 
             }
             .contact-item { font-size: 0.85rem; }
