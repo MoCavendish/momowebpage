@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>陈默 | 摄像师 & AI 影像创作个人作品集</title>
+    
+    <!-- 自定义文字浏览器图标 (Favicon: MO) -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%230a0a0a'/><text x='50%' y='50%' dy='.35em' fill='%23d4af37' font-family='Arial, sans-serif' font-weight='bold' font-size='16' text-anchor='middle'>MO</text></svg>">
+    
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
@@ -67,7 +71,6 @@
             user-select: none;
         }
         .lang-switch:hover { background: var(--primary); color: #000; }
-        /* 解决点击后维持金色的问题：添加 active 状态并在点击瞬间反馈，点击后恢复 */
         .lang-switch:active { transform: scale(0.95); opacity: 0.7; }
 
         /* 移动端导航栏高度缩减 + 元素逆向放大版 */
@@ -126,7 +129,7 @@
             .hero { padding-top: 85px; } 
         }
 
-        /* --- 其他板块保持不变 --- */
+        /* --- 英雄区域 --- */
         .hero {
             height: 60vh; 
             display: flex; flex-direction: column; justify-content: center; align-items: center;
@@ -140,7 +143,7 @@
             margin-bottom: 20px; 
             font-weight: 300;
             width: 100%;
-            color: #ffffff; /* 修改此处为纯白 */
+            color: #ffffff;
         }
         .hero p { 
             color: var(--text-dim); 
@@ -160,7 +163,6 @@
         }
 
         .section-header h2 { font-size: 1.35rem; letter-spacing: 0.2em; color: var(--primary); white-space: nowrap; transition: opacity 0.3s; font-weight: 500; }
-        /* 线条透明度进一步降低至 0.35 */
         .line { height: 1px; flex-grow: 1; background: var(--primary); opacity: 0.35; max-width: 300px; }
 
         .horizontal-scroll {
@@ -328,7 +330,6 @@
         .about-text p { color: #ccc; font-size: 0.95rem; margin-bottom: 1.5rem; text-align: justify; line-height: 1.8; }
         
         .resume-list { display: flex; flex-direction: column; gap: 30px; }
-        /* 修改左侧线条颜色与透明度，使其与大标题装饰线完全同步 (1px, primary, 0.35) */
         .resume-item { border-left: 1px solid rgba(212, 175, 55, 0.35); padding-left: 20px; position: relative; }
         .resume-item::before { content: ''; position: absolute; left: -4px; top: 0; width: 7px; height: 7px; background: var(--primary); border-radius: 50%; }
         .resume-date { font-size: 0.75rem; color: var(--primary); font-family: monospace; font-weight: bold; }
@@ -353,7 +354,6 @@
         .footer-title { color: var(--primary); font-size: 1.0rem; letter-spacing: 0.3em; margin-bottom: 25px; text-transform: uppercase; }
         .contact-methods { display: flex; justify-content: center; gap: 40px; margin-top: 10px; flex-wrap: wrap; }
         .contact-item { text-decoration: none; color: var(--text-dim); font-size: 0.9rem; display: flex; align-items: center; gap: 10px; transition: var(--transition); white-space: nowrap; }
-        /* 修复联系方式点击后维持金色的问题：明确 hover 后的颜色，并添加 active 瞬时反馈 */
         .contact-item:hover { color: var(--primary); }
         .contact-item:active { color: #fff; transform: scale(0.98); }
         
@@ -373,11 +373,9 @@
             .hero h1 { text-indent: 0.5em; }
             .hero p { text-indent: 0.3em; font-size: 0.75rem; }
 
-            /* 五个大标题移动端缩小：从 1.25rem 降至 1.05rem */
             .section-header h2 { font-size: 1.05rem; letter-spacing: 0.05em; font-weight: 500; }
             .section-header { justify-content: center; gap: 10px; margin-bottom: 30px; }
             
-            /* 移动端线条透明度下调至 0.4 */
             .section-header .line { 
                 height: 1px !important; 
                 background: var(--primary) !important; 
