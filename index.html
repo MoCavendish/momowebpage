@@ -35,16 +35,19 @@
             overflow-x: hidden;
         }
 
-        /* 导航栏样式 */
+        /* --- 导航栏基础样式 --- */
         nav {
             position: fixed;
             top: 0; width: 100%; z-index: 1000;
             padding: 15px 5%;
             display: flex; justify-content: space-between; align-items: center;
-            background: linear-gradient(to bottom, rgba(10,10,10,0.9), transparent);
-            backdrop-filter: blur(10px);
+            background: rgba(10, 10, 10, 0.3);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            transition: var(--transition);
         }
-        .logo { font-weight: 700; letter-spacing: 0.3em; color: var(--primary); }
+        
+        .logo { font-weight: 700; letter-spacing: 0.3em; color: var(--primary); transition: var(--transition); }
         .nav-right { display: flex; align-items: center; gap: 30px; }
         .nav-links { display: flex; gap: 25px; }
         .nav-links a { text-decoration: none; color: var(--text-dim); font-size: 0.8rem; letter-spacing: 0.1em; transition: var(--transition); white-space: nowrap; }
@@ -56,14 +59,71 @@
             letter-spacing: 0.1em;
             color: var(--primary);
             border: 1px solid rgba(212, 175, 55, 0.3);
-            padding: 4px 10px;
+            padding: 4px 12px;
             border-radius: 20px;
             transition: var(--transition);
             background: rgba(255,255,255,0.05);
+            flex-shrink: 0;
         }
         .lang-switch:hover { background: var(--primary); color: #000; }
 
-        /* Hero 区域 */
+        /* 移动端导航栏高度缩减 + 元素逆向放大版 */
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column; 
+                padding: 10px 15px 6px 15px; 
+                gap: 8px; 
+            }
+            
+            .logo {
+                width: auto;
+                text-align: left;
+                font-size: 1.0rem; 
+                letter-spacing: 0.2em;
+                margin-top: 2px;
+            }
+
+            .nav-right {
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+            }
+
+            .lang-switch {
+                position: absolute;
+                top: 10px; 
+                right: 15px; 
+                font-size: 0.8rem; 
+                padding: 4px 14px;
+                background: rgba(212, 175, 55, 0.1); 
+            }
+
+            .nav-links {
+                display: flex;
+                flex-wrap: wrap; 
+                justify-content: center;
+                gap: 6px 15px; 
+                width: 100%;
+                padding-bottom: 2px;
+            }
+            
+            .nav-links a {
+                font-size: 0.85rem; 
+                letter-spacing: 0.02em;
+                font-weight: 400; 
+                color: var(--text-dim); 
+            }
+
+            body.lang-en .nav-links a {
+                white-space: nowrap; 
+                font-size: 0.75rem; 
+            }
+
+            .hero { padding-top: 85px; } 
+        }
+
+        /* --- 其他板块保持不变 --- */
         .hero {
             height: 60vh; 
             display: flex; flex-direction: column; justify-content: center; align-items: center;
@@ -248,14 +308,14 @@
         }
         #lightbox.active { display: flex; }
 
-        /* 核心修改：关于我板块整体居中布局 */
+        /* --- 关于我板块 --- */
         .about-content { 
             display: grid; 
             grid-template-columns: 1.2fr 0.8fr; 
             gap: 60px; 
-            margin: 40px auto; /* 上下边距，左右自动居中 */
-            max-width: 1200px; /* 大屏下限制最大宽度以实现“整体居中” */
-            width: 90%; /* 保证在未达到 1200px 时的边距 */
+            margin: 40px auto; 
+            max-width: 1200px; 
+            width: 90%; 
         }
 
         .about-text h3, .resume-list h3 { color: var(--primary); margin-bottom: 20px; font-size: 1.2rem; border-bottom: 1px solid rgba(212,175,55,0.3); display: inline-block; padding-bottom: 5px; width: max-content; }
@@ -285,7 +345,7 @@
         footer { padding: 60px 5%; background: #050505; text-align: center; border-top: 1px solid #111; }
         .footer-title { color: var(--primary); font-size: 0.8rem; letter-spacing: 0.3em; margin-bottom: 25px; text-transform: uppercase; }
         .contact-methods { display: flex; justify-content: center; gap: 40px; margin-top: 10px; flex-wrap: wrap; }
-        .contact-item { text-decoration: none; color: var(--text-dim); font-size: 0.9rem; display: flex; align-items: center; gap: 10px; transition: var(--transition); }
+        .contact-item { text-decoration: none; color: var(--text-dim); font-size: 0.9rem; display: flex; align-items: center; gap: 10px; transition: var(--transition); white-space: nowrap; }
         .contact-item:hover { color: var(--primary); }
         
         .icon-wechat { color: var(--wechat-green) !important; }
@@ -301,11 +361,6 @@
         @media (max-width: 768px) {
             :root { --v-height: var(--v-height-mobile); }
             
-            nav { padding: 12px 3%; flex-direction: row; justify-content: space-between; align-items: center; }
-            .logo { font-size: 0.8rem; letter-spacing: 0.2em; }
-            .nav-links { display: none; } 
-            .nav-right { gap: 15px; }
-
             .hero h1 { text-indent: 0.5em; }
             .hero p { text-indent: 0.3em; font-size: 0.75rem; }
 
@@ -324,14 +379,22 @@
 
             .skills-grid { grid-template-columns: 1fr; }
             
-            .contact-methods { gap: 20px; flex-direction: column; align-items: center; }
+            /* 解决移动端页脚联系方式换行：强制单行并缩放 */
+            .contact-methods { 
+                gap: 20px; 
+                flex-direction: row; /* 强制横向排布 */
+                flex-wrap: nowrap; /* 禁止换行 */
+                justify-content: center; 
+                transform: scale(0.85); /* 整体等比缩小 */
+                transform-origin: center top; 
+            }
+            .contact-item { font-size: 0.85rem; }
         }
 
         body.lang-en { font-family: 'Helvetica Neue', Arial, sans-serif; }
     </style>
 </head>
 <body class="lang-zh">
-
     <nav>
         <div class="logo">CHEN MO</div>
         <div class="nav-right">
@@ -545,23 +608,16 @@
             <h2 data-zh="关于我与经历 / BIOGRAPHY" data-en="BIOGRAPHY">关于我与经历 / BIOGRAPHY</h2>
             <div class="line"></div>
         </div>
-        <!-- 修改点：通过 margin: auto 和 max-width 实现板块整体居中 -->
         <div class="about-content">
             <div class="about-text">
                 <h3 data-zh="职业概要" data-en="Profile">职业概要</h3>
-                <div id="about-intro">
-                    <!-- JS 填充 -->
-                </div>
+                <div id="about-intro"></div>
                 <h3 data-zh="专业技能" data-en="Core Skills">专业技能</h3>
-                <div class="skills-grid" id="skills-container">
-                    <!-- JS 填充 -->
-                </div>
+                <div class="skills-grid" id="skills-container"></div>
             </div>
             <div class="resume-list">
                 <h3 data-zh="工作经历" data-en="Experience">工作经历</h3>
-                <div id="resume-container">
-                    <!-- JS 填充 -->
-                </div>
+                <div id="resume-container"></div>
             </div>
         </div>
     </section>
@@ -656,34 +712,25 @@
             const isZh = currentLang === 'zh';
             document.body.className = isZh ? 'lang-zh' : 'lang-en';
             document.querySelector('.lang-switch').innerText = isZh ? 'EN' : '中文';
-
             document.querySelectorAll('[data-zh][data-en]').forEach(el => {
                 el.innerText = isZh ? el.getAttribute('data-zh') : el.getAttribute('data-en');
             });
-
             const data = i18n[currentLang];
             document.getElementById('about-intro').innerHTML = data.intro;
-
-            const skillsHtml = data.skills.map(s => `
+            document.getElementById('skills-container').innerHTML = data.skills.map(s => `
                 <div class="skill-box">
                     <h4><i data-lucide="${s.icon}" size="14"></i> ${s.title}</h4>
                     <p>${s.desc}</p>
                 </div>
             `).join('');
-            document.getElementById('skills-container').innerHTML = skillsHtml;
-
-            const resumeHtml = data.experience.map(e => `
+            document.getElementById('resume-container').innerHTML = data.experience.map(e => `
                 <div class="resume-item">
                     <div class="resume-date">${e.date}</div>
                     <div class="resume-title">${e.company}</div>
                     <div class="resume-subtitle">${e.role}</div>
-                    <div class="resume-desc">
-                        ${e.desc.map(li => `<li>${li}</li>`).join('')}
-                    </div>
+                    <div class="resume-desc">${e.desc.map(li => `<li>${li}</li>`).join('')}</div>
                 </div>
             `).join('');
-            document.getElementById('resume-container').innerHTML = resumeHtml;
-
             lucide.createIcons();
         }
 
@@ -692,8 +739,6 @@
             localStorage.setItem('site-lang', currentLang);
             updateContent();
         }
-
-        document.addEventListener('DOMContentLoaded', updateContent);
 
         const vlb = document.getElementById('video-lightbox');
         const lbVideo = document.getElementById('lightbox-video');
@@ -756,7 +801,7 @@
         function initMarquee(wrapperId, baseSpeed) {
             const wrapper = document.getElementById(wrapperId);
             const content = wrapper.querySelector('.marquee-content');
-            let x = -(content.scrollWidth / 2); 
+            let x = 0; 
             let isDragging = false, startX = 0;
 
             function animate() {
@@ -772,7 +817,7 @@
             }
             
             window.addEventListener('load', () => {
-                x = -(content.scrollWidth / 2);
+                x = 0;
                 content.style.transform = `translateX(${x}px)`;
                 animate();
             });
@@ -799,7 +844,7 @@
         }
         
         initMarquee('fashion-marquee-wrapper', 1.0);
-
+        document.addEventListener('DOMContentLoaded', updateContent);
         document.addEventListener('keydown', e => {
             if(e.key === 'Escape') { closeVideoLightbox(); closeLightbox(); }
         });
