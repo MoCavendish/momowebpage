@@ -129,30 +129,85 @@
             .hero { padding-top: 85px; } 
         }
 
-        /* --- 英雄区域 --- */
+        /* --- 英雄区域及光效动画 --- */
         .hero {
             height: 60vh; 
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             text-align: center;
             padding: 0 5%;
+            overflow: hidden; 
         }
-        .hero h1 { 
+
+        #hero-text-wrapper {
+            cursor: pointer;
+            width: fit-content;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0 auto;
+        }
+        
+        .hero-animated-title, .hero-animated-subtitle {
+            position: relative;
+            width: 100%;
+            text-align: center;
+        }
+
+        .hero-animated-title {
             font-size: clamp(2.5rem, 10vw, 4.5rem); 
-            letter-spacing: 0.5em; 
-            text-indent: 0.5em; 
+            letter-spacing: 0.28em; 
+            margin-right: -0.28em; 
             margin-bottom: 20px; 
             font-weight: 300;
-            width: 100%;
-            color: #ffffff;
+            color: transparent; 
+            white-space: nowrap;
         }
-        .hero p { 
-            color: var(--text-dim); 
-            letter-spacing: 0.3em; 
-            text-indent: 0.3em;
+
+        .hero-animated-subtitle {
+            color: transparent; 
+            letter-spacing: 0.17em; 
+            margin-right: -0.17em; 
             font-size: 0.9rem; 
             text-transform: uppercase;
-            opacity: 0.8;
-            width: 100%;
+            /* 修改：移除 white-space: nowrap; 解决硬锁定问题 */
+            /* 增加：使用 inline-block 和 max-content 确保在宽度足够时不自动换行（解决末尾字符偏移 Bug） */
+            display: inline-block;
+            width: max-content;
+            max-width: 95vw; /* 确保极窄屏幕下不会溢出 */
+        }
+
+        /* 极致异步动画逻辑 */
+        .flicker-char {
+            display: inline-block;
+            opacity: 0;
+            text-shadow: 0 0 10px rgba(212,175,55,0.5);
+        }
+        
+        .hero-animated-subtitle .flicker-char {
+            text-shadow: none;
+        }
+
+        .flash-active #hero-name .flicker-char {
+            animation: charNeonFlicker var(--blink-dur) steps(var(--blink-steps), end) var(--blink-delay) forwards;
+        }
+        .flash-active #hero-tag .flicker-char {
+            animation: charNeonFlickerSub var(--blink-dur) steps(var(--blink-steps), end) var(--blink-delay) forwards;
+        }
+
+        @keyframes charNeonFlicker {
+            0%   { opacity: 0; transform: translateX(-15px) scale(1.05); color: transparent; text-shadow: none; }
+            30%  { opacity: 0.2; transform: translateX(-5px) scale(1); color: rgba(212,175,55,0.3); text-shadow: 0 0 5px rgba(212,175,55,0.2); }
+            50%  { opacity: 1; transform: translateX(-2px) scale(1.02); color: #fff; text-shadow: 0 0 30px rgba(212,175,55,1), 0 0 10px #fff; }
+            70%  { opacity: 0.1; transform: translateX(0) scale(1); color: rgba(212,175,55,0.2); text-shadow: none; }
+            100% { opacity: 1; transform: translateX(0) scale(1); color: #ffffff; text-shadow: 0 0 15px rgba(212,175,55,0.3); }
+        }
+
+        @keyframes charNeonFlickerSub {
+            0%   { opacity: 0; transform: translateX(-10px); color: transparent; text-shadow: none; }
+            20%  { opacity: 0.8; transform: translateX(-3px); color: #fff; text-shadow: 0 0 15px rgba(255,255,255,0.8); }
+            50%  { opacity: 0.1; transform: translateX(0); color: transparent; text-shadow: none; }
+            80%  { opacity: 1; transform: translateX(0); color: #fff; text-shadow: 0 0 20px rgba(255,255,255,0.8); }
+            100% { opacity: 1; transform: translateX(0); color: var(--text-dim); text-shadow: none; }
         }
 
         .section { padding: 60px 5%; overflow: hidden; }
@@ -394,11 +449,8 @@
         @media (max-width: 768px) {
             :root { --v-height: var(--v-height-mobile); }
             
-            .carousel-container { height: 45vw; transform: scale(1); }
-            .carousel-item { width: 75%; }
-
-            .hero h1 { text-indent: 0.5em; }
-            .hero p { text-indent: 0.3em; font-size: 0.75rem; }
+            .hero-animated-title { text-indent: 0; }
+            .hero-animated-subtitle { text-indent: 0; font-size: 0.75rem; }
 
             .section-header h2 { font-size: 1.05rem; letter-spacing: 0.05em; font-weight: 500; }
             .section-header { justify-content: center; gap: 10px; margin-bottom: 30px; }
@@ -465,8 +517,10 @@
     </div>
 
     <section class="hero">
-        <h1 id="hero-name" data-zh="陈 默" data-en="CHEN MO">陈 默</h1>
-        <p id="hero-tag" data-zh="Fashion Videographer & AI Visuals Creator" data-en="Fashion Videographer & AI Visuals Creator">Fashion Videographer & AI Visuals Creator</p>
+        <div id="hero-text-wrapper">
+            <h1 id="hero-name" class="hero-animated-title" data-zh="陈 默" data-en="CHEN MO">陈 默</h1>
+            <p id="hero-tag" class="hero-animated-subtitle" data-zh="Fashion Videographer & AI Visuals Creator" data-en="Fashion Videographer & AI Visuals Creator">Fashion Videographer & AI Visuals Creator</p>
+        </div>
     </section>
 
     <!-- 时尚视频区 -->
@@ -476,40 +530,8 @@
             <h2 data-zh="时尚视觉视频 / FASHION VIDEO (5)" data-en="FASHION VIDEO (5)">时尚视觉视频 / FASHION VIDEO (5)</h2>
             <div class="line"></div>
         </div>
-        <div class="horizontal-scroll">
-            <script>
-                const fashionVideos = [
-                    "https://permalink.dogevideo.com/player/get.m3u8?vcode=07e08b5c4a577628&userId=14748&flsign=815c0f8de1d44441f2ea259dd448fa87&ext=.m3u8",
-                    "https://permalink.dogevideo.com/player/get.m3u8?vcode=c9cc489dcd6cf243&userId=14748&flsign=a3f47ce9eca367a3baaa2011c2a06c95&ext=.m3u8",
-                    "https://permalink.dogevideo.com/player/get.m3u8?vcode=dc9445e9f283492c&userId=14748&flsign=42e3bee0d16460ea0758452db92622a1&ext=.m3u8",
-                    "https://permalink.dogevideo.com/player/get.m3u8?vcode=ad46dfe9201737be&userId=14748&flsign=a0b4215561c294430dd155bf3963c0c2&ext=.m3u8",
-                    "https://permalink.dogevideo.com/player/get.m3u8?vcode=c36d26f6aceab097&userId=14748&flsign=726153dc17bf392e78a83b5d2afc1782&ext=.m3u8"
-                ];
-
-                const fashionPosters = [
-                    "https://bsyimg.luoca.net/imgtc/20260307/ea910963f4bd7040eac1431ea34be3e1.webp",
-                    "https://bsyimg.luoca.net/imgtc/20260307/da738c57daa0321b65ed9c4e6bff6101.webp",
-                    "https://bsyimg.luoca.net/imgtc/20260313/e50d4cde81543266b74fb92e6b03a56b.webp",
-                    "https://bsyimg.luoca.net/imgtc/20260307/69c62fd44f5fc2143d87e7e0451e3684.webp",
-                    "https://bsyimg.luoca.net/imgtc/20260307/65c0047391c344beb546242b8b14dd87.webp"
-                ];
-
-                fashionVideos.forEach((src, index) => {
-                    const poster = fashionPosters[index];
-                    document.write(`
-                        <div class="video-card portrait">
-                            <div class="video-frame" onclick="openVideoLightbox('${src}')">
-                                <img src="${poster}" alt="Poster" onerror="this.src='https://via.placeholder.com/600x800?text=Image+Not+Found'">
-                                <div class="play-overlay"><i data-lucide="play" fill="currentColor"></i></div>
-                            </div>
-                            <div class="video-meta">
-                                <h3 data-zh="时尚作品 ${(index + 1).toString().padStart(2,'0')}" data-en="Fashion Work ${(index + 1).toString().padStart(2,'0')}">时尚作品 ${(index + 1).toString().padStart(2,'0')}</h3>
-                                <p data-zh="9:16 | 竖屏视觉流" data-en="9:16 | Vertical Visual Stream">9:16 | 竖屏视觉流</p>
-                            </div>
-                        </div>
-                    `);
-                });
-            </script>
+        <div class="horizontal-scroll" id="fashion-video-container">
+            <!-- JS 动态渲染 -->
         </div>
     </section>
 
@@ -521,31 +543,8 @@
             <div class="line"></div>
         </div>
         <div class="marquee-wrapper" id="fashion-marquee-wrapper">
-            <div class="marquee-content">
-                <script>
-                    const fashionPhotoLinks = [
-                        "https://bsyimg.luoca.net/imgtc/20260307/fdbf4accad773e1db1a3ae86aecdbe4d.webp",
-                        "https://bsyimg.luoca.net/imgtc/20260307/deb552b9731cd32c85ab8ba7a2d2d797.webp",
-                        "https://bsyimg.luoca.net/imgtc/20260307/117284f4c7265b6a5e7802f1aecdbcca.webp",
-                        "https://bsyimg.luoca.net/imgtc/20260307/3c450bf90300c8e906c0ff70b2b9481f.webp",
-                        "https://bsyimg.luoca.net/imgtc/20260307/995455fe165471e15ace67af395c8feb.webp",
-                        "https://bsyimg.luoca.net/imgtc/20260307/68367885a35a64decf798bdc1a52c674.webp",
-                        "https://bsyimg.luoca.net/imgtc/20260307/7aef56f355abf09052729749adf61a26.webp",
-                        "https://bsyimg.luoca.net/imgtc/20260307/118c8c2cfae43621502a5d237c05acf9.webp",
-                        "https://bsyimg.luoca.net/imgtc/20260307/ea1c1af8a8b04e438e6ef75f14ac03b3.webp",
-                        "https://bsyimg.luoca.net/imgtc/20260307/3012c9d9a7a90f639352b16209b4d451.webp"
-                    ];
-                    
-                    const allFashionPhotos = [...fashionPhotoLinks, ...fashionPhotoLinks];
-                    
-                    allFashionPhotos.forEach(src => {
-                        document.write(`
-                            <div class="marquee-item" onclick="onItemClick(this, event)" data-full="${src}">
-                                <img src="${src}" onerror="this.src='https://via.placeholder.com/300x400?text=Fashion+Photo'">
-                            </div>
-                        `);
-                    });
-                </script>
+            <div class="marquee-content" id="fashion-photo-container">
+                <!-- JS 动态渲染 -->
             </div>
         </div>
     </section>
@@ -572,40 +571,8 @@
             <h2 data-zh="AI生成作品 / AI GENERATED (5)" data-en="AI GENERATED (5)">AI生成作品 / AI GENERATED (5)</h2>
             <div class="line"></div>
         </div>
-        <div class="horizontal-scroll">
-            <script>
-                const aiVideos = [
-                    "https://permalink.dogevideo.com/player/get.m3u8?vcode=376e585cfe76c209&userId=14748&flsign=65374b7fb784f5794d9b08d6b9529f2e&ext=.m3u8",
-                    "https://permalink.dogevideo.com/player/get.m3u8?vcode=8fd8f85d1bd88a2b&userId=14748&flsign=489f4b5ab3496949a9513a6b63f3fa4e&ext=.m3u8",
-                    "https://permalink.dogevideo.com/player/get.m3u8?vcode=0c9c5e4408d4c308&userId=14748&flsign=64e9eafc8a286f2da5a6fa9fdf50ea70&ext=.m3u8",
-                    "https://permalink.dogevideo.com/player/get.m3u8?vcode=4c549f2f11c285b9&userId=14748&flsign=fd5be9643feae7e6d63cb0257d91db72&ext=.m3u8",
-                    "https://permalink.dogevideo.com/player/get.m3u8?vcode=483571cec45582c2&userId=14748&flsign=17787f01e69cd752cc90ff029e99fcde&ext=.m3u8"
-                ];
-
-                const aiPosters = [
-                    "https://bsyimg.luoca.net/imgtc/20260307/ec900db9f3e99ccacfa406fe9bb07526.webp",
-                    "https://bsyimg.luoca.net/imgtc/20260307/ea7daa5955db5a44b3137ec44a7fcb3d.webp",
-                    "https://bsyimg.luoca.net/imgtc/20260307/6fdb8aacf23bc07bb32464c84343eb85.webp",
-                    "https://bsyimg.luoca.net/imgtc/20260307/f60ae21db375dcafe63d5df03c538d32.webp",
-                    "https://bsyimg.luoca.net/imgtc/20260307/95170551d80f59d7a800eb211232a6ca.webp"
-                ];
-
-                aiVideos.forEach((src, index) => {
-                    const poster = aiPosters[index];
-                    document.write(`
-                        <div class="video-card portrait">
-                            <div class="video-frame" onclick="openVideoLightbox('${src}')">
-                                <img src="${poster}" alt="Poster" onerror="this.src='https://via.placeholder.com/600x800?text=AI+Visual'">
-                                <div class="play-overlay"><i data-lucide="play" fill="currentColor"></i></div>
-                            </div>
-                            <div class="video-meta">
-                                <h3 data-zh="AI视觉探索 ${(index + 1).toString().padStart(2,'0')}" data-en="AI Exploration ${(index + 1).toString().padStart(2,'0')}">AI视觉探索 ${(index + 1).toString().padStart(2,'0')}</h3>
-                                <p data-zh="SeeDance | 9:16" data-en="SeeDance | 9:16">SeeDance | 9:16</p>
-                            </div>
-                        </div>
-                    `);
-                });
-            </script>
+        <div class="horizontal-scroll" id="ai-video-container">
+            <!-- JS 动态渲染 -->
         </div>
     </section>
 
@@ -616,49 +583,8 @@
             <h2 data-zh="产品展示视频 / PRODUCT VIDEO (4)" data-en="PRODUCT VIDEO (4)">产品展示视频 / PRODUCT VIDEO (4)</h2>
             <div class="line"></div>
         </div>
-        <div class="horizontal-scroll">
-            <script>
-                const productVideos = [
-                    "https://permalink.dogevideo.com/player/get.m3u8?vcode=7ce78817e7be86f8&userId=14748&flsign=b72d3375911bdd448ed1218c7946a1dc&ext=.m3u8",
-                    "https://permalink.dogevideo.com/player/get.m3u8?vcode=2b90968f9e64bc1a&userId=14748&flsign=cebc4a1b429f38e46a9c87685e380b5f&ext=.m3u8",
-                    "https://permalink.dogevideo.com/player/get.m3u8?vcode=abe9aa4015f7c3c8&userId=14748&flsign=e46fe2e6336ff8d3365c1616ce7b37a1&ext=.m3u8",
-                    "https://permalink.dogevideo.com/player/get.m3u8?vcode=61de0dbf4c9dc72b&userId=14748&flsign=ad39e841e8fd22ac05f1c2027b48661b&ext=.m3u8"
-                ];
-                
-                const productPosters = [
-                    "https://bsyimg.luoca.net/imgtc/20260307/e6d38d6ec161ef0829ec754ef4362c27.webp",
-                    "https://bsyimg.luoca.net/imgtc/20260307/36c56e3122dd80b99768ead22501ecf6.webp",
-                    "https://bsyimg.luoca.net/imgtc/20260307/4f7e5f454b31c5869d80d378f0a4befa.webp",
-                    "https://bsyimg.luoca.net/imgtc/20260307/223805b4bf792adb2a6cf950e51f92e9.webp"
-                ];
-
-                const productLayout = ['four-three', 'portrait', 'four-three', 'three-four'];
-                
-                productVideos.forEach((src, index) => {
-                    const type = productLayout[index];
-                    const poster = productPosters[index];
-                    
-                    let ratio = "16:9";
-                    if (type === 'portrait') ratio = "9:16";
-                    if (type === 'three-four') ratio = "3:4";
-                    
-                    let labelZh = (type === 'four-three' || type === 'landscape') ? "横屏展示" : "竖屏展示";
-                    let labelEn = (type === 'four-three' || type === 'landscape') ? "Landscape" : "Portrait";
-                    
-                    document.write(`
-                        <div class="video-card ${type}">
-                            <div class="video-frame" onclick="openVideoLightbox('${src}')">
-                                <img src="${poster}" alt="Poster" onerror="this.src='https://via.placeholder.com/800x600?text=Product+Poster'">
-                                <div class="play-overlay"><i data-lucide="play" fill="currentColor"></i></div>
-                            </div>
-                            <div class="video-meta">
-                                <h3 data-zh="产品${labelZh} ${(index + 1).toString().padStart(2,'0')}" data-en="Product ${labelEn} ${(index + 1).toString().padStart(2,'0')}">产品${labelZh} ${(index + 1).toString().padStart(2,'0')}</h3>
-                                <p data-zh="${ratio} | 动态美学" data-en="${ratio} | Dynamic Aesthetics">${ratio} | 动态美学</p>
-                            </div>
-                        </div>
-                    `);
-                });
-            </script>
+        <div class="horizontal-scroll" id="product-video-container">
+            <!-- JS 动态渲染 -->
         </div>
     </section>
 
@@ -700,6 +626,68 @@
     </footer>
 
     <script>
+        // --- 数据配置 ---
+        const fashionVideos = [
+            "https://permalink.dogevideo.com/player/get.m3u8?vcode=07e08b5c4a577628&userId=14748&flsign=815c0f8de1d44441f2ea259dd448fa87&ext=.m3u8",
+            "https://permalink.dogevideo.com/player/get.m3u8?vcode=c9cc489dcd6cf243&userId=14748&flsign=a3f47ce9eca367a3baaa2011c2a06c95&ext=.m3u8",
+            "https://permalink.dogevideo.com/player/get.m3u8?vcode=dc9445e9f283492c&userId=14748&flsign=42e3bee0d16460ea0758452db92622a1&ext=.m3u8",
+            "https://permalink.dogevideo.com/player/get.m3u8?vcode=ad46dfe9201737be&userId=14748&flsign=a0b4215561c294430dd155bf3963c0c2&ext=.m3u8",
+            "https://permalink.dogevideo.com/player/get.m3u8?vcode=c36d26f6aceab097&userId=14748&flsign=726153dc17bf392e78a83b5d2afc1782&ext=.m3u8"
+        ];
+        const fashionPosters = [
+            "https://bsyimg.luoca.net/imgtc/20260307/ea910963f4bd7040eac1431ea34be3e1.webp",
+            "https://bsyimg.luoca.net/imgtc/20260307/da738c57daa0321b65ed9c4e6bff6101.webp",
+            "https://bsyimg.luoca.net/imgtc/20260313/e50d4cde81543266b74fb92e6b03a56b.webp",
+            "https://bsyimg.luoca.net/imgtc/20260307/69c62fd44f5fc2143d87e7e0451e3684.webp",
+            "https://bsyimg.luoca.net/imgtc/20260307/65c0047391c344beb546242b8b14dd87.webp"
+        ];
+        const fashionPhotoLinks = [
+            "https://bsyimg.luoca.net/imgtc/20260307/fdbf4accad773e1db1a3ae86aecdbe4d.webp",
+            "https://bsyimg.luoca.net/imgtc/20260307/deb552b9731cd32c85ab8ba7a2d2d797.webp",
+            "https://bsyimg.luoca.net/imgtc/20260307/117284f4c7265b6a5e7802f1aecdbcca.webp",
+            "https://bsyimg.luoca.net/imgtc/20260307/3c450bf90300c8e906c0ff70b2b9481f.webp",
+            "https://bsyimg.luoca.net/imgtc/20260307/995455fe165471e15ace67af395c8feb.webp",
+            "https://bsyimg.luoca.net/imgtc/20260307/68367885a35a64decf798bdc1a52c674.webp",
+            "https://bsyimg.luoca.net/imgtc/20260307/7aef56f355abf09052729749adf61a26.webp",
+            "https://bsyimg.luoca.net/imgtc/20260307/118c8c2cfae43621502a5d237c05acf9.webp",
+            "https://bsyimg.luoca.net/imgtc/20260307/ea1c1af8a8b04e438e6ef75f14ac03b3.webp",
+            "https://bsyimg.luoca.net/imgtc/20260307/3012c9d9a7a90f639352b16209b4d451.webp"
+        ];
+        const aiVideos = [
+            "https://permalink.dogevideo.com/player/get.m3u8?vcode=376e585cfe76c209&userId=14748&flsign=65374b7fb784f5794d9b08d6b9529f2e&ext=.m3u8",
+            "https://permalink.dogevideo.com/player/get.m3u8?vcode=8fd8f85d1bd88a2b&userId=14748&flsign=489f4b5ab3496949a9513a6b63f3fa4e&ext=.m3u8",
+            "https://permalink.dogevideo.com/player/get.m3u8?vcode=0c9c5e4408d4c308&userId=14748&flsign=64e9eafc8a286f2da5a6fa9fdf50ea70&ext=.m3u8",
+            "https://permalink.dogevideo.com/player/get.m3u8?vcode=4c549f2f11c285b9&userId=14748&flsign=fd5be9643feae7e6d63cb0257d91db72&ext=.m3u8",
+            "https://permalink.dogevideo.com/player/get.m3u8?vcode=483571cec45582c2&userId=14748&flsign=17787f01e69cd752cc90ff029e99fcde&ext=.m3u8"
+        ];
+        const aiPosters = [
+            "https://bsyimg.luoca.net/imgtc/20260307/ec900db9f3e99ccacfa406fe9bb07526.webp",
+            "https://bsyimg.luoca.net/imgtc/20260307/ea7daa5955db5a44b3137ec44a7fcb3d.webp",
+            "https://bsyimg.luoca.net/imgtc/20260307/6fdb8aacf23bc07bb32464c84343eb85.webp",
+            "https://bsyimg.luoca.net/imgtc/20260307/f60ae21db375dcafe63d5df03c538d32.webp",
+            "https://bsyimg.luoca.net/imgtc/20260307/95170551d80f59d7a800eb211232a6ca.webp"
+        ];
+        const productVideos = [
+            "https://permalink.dogevideo.com/player/get.m3u8?vcode=7ce78817e7be86f8&userId=14748&flsign=b72d3375911bdd448ed1218c7946a1dc&ext=.m3u8",
+            "https://permalink.dogevideo.com/player/get.m3u8?vcode=2b90968f9e64bc1a&userId=14748&flsign=cebc4a1b429f38e46a9c87685e380b5f&ext=.m3u8",
+            "https://permalink.dogevideo.com/player/get.m3u8?vcode=abe9aa4015f7c3c8&userId=14748&flsign=e46fe2e6336ff8d3365c1616ce7b37a1&ext=.m3u8",
+            "https://permalink.dogevideo.com/player/get.m3u8?vcode=61de0dbf4c9dc72b&userId=14748&flsign=ad39e841e8fd22ac05f1c2027b48661b&ext=.m3u8"
+        ];
+        const productPosters = [
+            "https://bsyimg.luoca.net/imgtc/20260307/e6d38d6ec161ef0829ec754ef4362c27.webp",
+            "https://bsyimg.luoca.net/imgtc/20260307/36c56e3122dd80b99768ead22501ecf6.webp",
+            "https://bsyimg.luoca.net/imgtc/20260307/4f7e5f454b31c5869d80d378f0a4befa.webp",
+            "https://bsyimg.luoca.net/imgtc/20260307/223805b4bf792adb2a6cf950e51f92e9.webp"
+        ];
+        const planningImages = [
+            "https://bsyimg.luoca.net/imgtc/20260313/998590e254eed9ce42575b63b6f06403.webp",
+            "https://bsyimg.luoca.net/imgtc/20260313/aa791cfe45bbfa724481803ef71876d0.webp",
+            "https://bsyimg.luoca.net/imgtc/20260313/ca833cd3b75846dcdfd51269377e5209.webp",
+            "https://bsyimg.luoca.net/imgtc/20260313/98dec6a0e231ae48a831e726cbce8bcb.webp",
+            "https://bsyimg.luoca.net/imgtc/20260313/c5e5fb730ebc2b9c18347ace821bf831.webp",
+            "https://bsyimg.luoca.net/imgtc/20260313/e2364a181954062b8bcc9d4ae90e1e4c.webp"
+        ];
+
         const i18n = {
             zh: {
                 intro: `<p>本人深耕商业视觉领域 8 年，从专业摄像执行逐步转向视觉策划与项目管理，具备成熟的商业内容创作经验、国际化审美与全流程项目把控能力。</p>
@@ -773,19 +761,77 @@
             }
         };
 
+        // --- 全局状态 ---
         let currentLang = localStorage.getItem('site-lang') || 'zh';
+        let lightboxActive = false;
+        let lbImagesArray = [];
+        let lbCurrentIndex = 0;
+        let globalIsMoved = false;
+        let hls = null;
+
+        // --- 工具函数 ---
+        function buildFlickerChars() {
+            const titleEl = document.getElementById('hero-name');
+            const subtitleEl = document.getElementById('hero-tag');
+            const isZh = currentLang === 'zh';
+            const titleText = isZh ? titleEl.getAttribute('data-zh') : titleEl.getAttribute('data-en');
+            const subtitleText = isZh ? subtitleEl.getAttribute('data-zh') : subtitleEl.getAttribute('data-en');
+            
+            const createSpans = (text, target) => {
+                target.innerHTML = '';
+                Array.from(text).forEach(char => {
+                    const span = document.createElement('span');
+                    if (char === ' ') span.innerHTML = '&nbsp;';
+                    else {
+                        span.textContent = char;
+                        span.className = 'flicker-char';
+                    }
+                    target.appendChild(span);
+                });
+            };
+            createSpans(titleText, titleEl);
+            createSpans(subtitleText, subtitleEl);
+        }
+
+        function triggerFlash(wrapperEl) {
+            if (!wrapperEl) return;
+            wrapperEl.classList.remove('flash-active');
+            
+            const applyAnims = (selector, delayBase, delayRand, durBase, durRand, stepMin, stepRand) => {
+                wrapperEl.querySelectorAll(selector).forEach(span => {
+                    const delay = delayBase + (Math.random() * delayRand);
+                    const dur = durBase + (Math.random() * durRand);
+                    const steps = Math.floor(Math.random() * stepRand) + stepMin;
+                    span.style.setProperty('--blink-delay', `${delay}s`);
+                    span.style.setProperty('--blink-dur', `${dur}s`);
+                    span.style.setProperty('--blink-steps', steps);
+                });
+            };
+            applyAnims('#hero-name .flicker-char', 0.05, 0.4, 0.8, 1.5, 5, 15);
+            applyAnims('#hero-tag .flicker-char', 0.3, 0.5, 0.5, 1.0, 4, 8);
+
+            void wrapperEl.offsetWidth; 
+            wrapperEl.classList.add('flash-active');
+        }
 
         function updateContent() {
             const isZh = currentLang === 'zh';
             document.body.className = isZh ? 'lang-zh' : 'lang-en';
             document.querySelector('.lang-switch').innerText = isZh ? 'EN' : '中文';
+            
             document.querySelectorAll('[data-zh][data-en]').forEach(el => {
-                el.innerText = isZh ? el.getAttribute('data-zh') : el.getAttribute('data-en');
+                if (el.id !== 'hero-name' && el.id !== 'hero-tag') {
+                    el.innerText = isZh ? el.getAttribute('data-zh') : el.getAttribute('data-en');
+                }
             });
+            
+            buildFlickerChars();
+            triggerFlash(document.getElementById('hero-text-wrapper'));
+            
             const data = i18n[currentLang];
             document.getElementById('about-intro').innerHTML = data.intro;
-            const planningDescEl = document.getElementById('planning-desc');
-            if(planningDescEl) planningDescEl.innerText = data.planningDesc;
+            if(document.getElementById('planning-desc')) document.getElementById('planning-desc').innerText = data.planningDesc;
+
             document.getElementById('skills-container').innerHTML = data.skills.map(s => `
                 <div class="skill-box">
                     <h4><i data-lucide="${s.icon}" size="14"></i> ${s.title}</h4>
@@ -809,9 +855,9 @@
             updateContent();
         }
 
+        // --- 视频与图集交互 ---
         const vlb = document.getElementById('video-lightbox');
         const lbVideo = document.getElementById('lightbox-video');
-        let hls = null;
 
         function openVideoLightbox(src) {
             vlb.classList.add('active');
@@ -837,9 +883,6 @@
 
         const lb = document.getElementById('lightbox');
         const lbImg = document.getElementById('lightbox-img');
-        let lightboxActive = false;
-        let lbImagesArray = [];
-        let lbCurrentIndex = 0;
 
         function openLightbox(src) {
             if (!src) return;
@@ -849,7 +892,6 @@
             lightboxActive = true;
             setTimeout(() => lb.classList.add('active'), 10);
             document.body.style.overflow = 'hidden';
-            
             document.querySelector('.lb-prev').style.display = 'none';
             document.querySelector('.lb-next').style.display = 'none';
         }
@@ -858,7 +900,6 @@
             lbImagesArray = images;
             lbCurrentIndex = index;
             openLightbox(images[index]);
-            
             if(images.length > 1) {
                 document.querySelector('.lb-prev').style.display = 'flex';
                 document.querySelector('.lb-next').style.display = 'flex';
@@ -873,7 +914,7 @@
         }
 
         function closeLightbox(event) {
-            if (event && event.target.closest('.lb-nav')) return; // 忽略点击两侧箭头
+            if (event && event.target.closest('.lb-nav')) return; 
             if (!lightboxActive) return;
             lb.classList.remove('active');
             document.documentElement.style.setProperty('--marquee-speed', '1');
@@ -886,46 +927,10 @@
             document.body.style.overflow = 'auto';
         }
 
-        let lbStartX = 0;
-        let lbIsDragging = false;
-        lb.addEventListener('mousedown', e => { lbStartX = e.clientX; lbIsDragging = true; });
-        window.addEventListener('mouseup', e => {
-            if (lightboxActive && lbIsDragging) {
-                lbIsDragging = false;
-                let diff = lbStartX - e.clientX;
-                if (diff > 50) navLightbox(1);
-                else if (diff < -50) navLightbox(-1);
-            }
-        });
-        lb.addEventListener('touchstart', e => { lbStartX = e.touches[0].clientX; lbIsDragging = true; }, {passive: true});
-        lb.addEventListener('touchend', e => {
-            if (lightboxActive && lbIsDragging) {
-                lbIsDragging = false;
-                let diff = lbStartX - e.changedTouches[0].clientX;
-                if (diff > 50) navLightbox(1);
-                else if (diff < -50) navLightbox(-1);
-            }
-        });
-
-        let globalIsMoved = false;
-
-        function onItemClick(el, e) {
-            if (globalIsMoved) return;
-            const src = el.getAttribute('data-full');
-            if (typeof allFashionPhotos !== 'undefined') {
-                 const idx = allFashionPhotos.indexOf(src);
-                 if(idx !== -1) openImageArrayLightbox(allFashionPhotos, idx);
-                 else openLightbox(src);
-            } else {
-                 openLightbox(src);
-            }
-        }
-
+        // --- 跑马灯 ---
         function initMarquee(wrapperId, baseSpeed) {
             const wrapper = document.getElementById(wrapperId);
-            if (!wrapper) return;
             const content = wrapper.querySelector('.marquee-content');
-            if (!content) return;
             let x = 0; 
             let isDragging = false, startX = 0;
 
@@ -940,12 +945,7 @@
                 }
                 requestAnimationFrame(animate);
             }
-            
-            window.addEventListener('load', () => {
-                x = 0;
-                content.style.transform = `translateX(${x}px)`;
-                animate();
-            });
+            window.addEventListener('load', () => { x = 0; animate(); });
 
             const onStart = (clientX) => { isDragging = true; globalIsMoved = false; startX = clientX; };
             const onMove = (clientX) => {
@@ -958,82 +958,55 @@
                 startX = clientX;
                 content.style.transform = `translateX(${x}px)`;
             };
-            const onEnd = () => isDragging = false;
-
             wrapper.addEventListener('mousedown', e => onStart(e.pageX));
             window.addEventListener('mousemove', e => onMove(e.pageX));
-            window.addEventListener('mouseup', onEnd);
+            window.addEventListener('mouseup', () => isDragging = false);
             wrapper.addEventListener('touchstart', e => onStart(e.touches[0].clientX), {passive: true});
             window.addEventListener('touchmove', e => onMove(e.touches[0].clientX), {passive: true});
-            window.addEventListener('touchend', onEnd);
+            window.addEventListener('touchend', () => isDragging = false);
         }
-        
-        // --- 全案策划 轮播图逻辑 ---
-        const planningImages = [
-            "https://bsyimg.luoca.net/imgtc/20260313/998590e254eed9ce42575b63b6f06403.webp",
-            "https://bsyimg.luoca.net/imgtc/20260313/aa791cfe45bbfa724481803ef71876d0.webp",
-            "https://bsyimg.luoca.net/imgtc/20260313/ca833cd3b75846dcdfd51269377e5209.webp",
-            "https://bsyimg.luoca.net/imgtc/20260313/98dec6a0e231ae48a831e726cbce8bcb.webp",
-            "https://bsyimg.luoca.net/imgtc/20260313/c5e5fb730ebc2b9c18347ace821bf831.webp",
-            "https://bsyimg.luoca.net/imgtc/20260313/e2364a181954062b8bcc9d4ae90e1e4c.webp"
-        ];
-        
+
+        // --- 堆叠轮播图 ---
         let carouselIndex = 0;
         let carouselPaused = false;
-        const carouselContainer = document.getElementById('stacked-carousel');
-        let carouselElements = [];
         let carouselDragging = false;
         let carouselStartX = 0;
         let carouselMoved = false;
+        let carouselElements = [];
 
         function initCarousel() {
-            if(!carouselContainer) return;
-            carouselContainer.innerHTML = '';
+            const container = document.getElementById('stacked-carousel');
+            container.innerHTML = '';
             planningImages.forEach((src, i) => {
                 const el = document.createElement('div');
                 el.className = 'carousel-item';
-                
                 const img = document.createElement('img');
                 img.src = src;
-                img.ondragstart = () => false;
                 el.appendChild(img);
-
                 el.addEventListener('click', (e) => {
                     e.stopPropagation();
                     if (!carouselMoved) {
-                        let offset = i - carouselIndex;
-                        if (offset < -Math.floor(planningImages.length / 2)) offset += planningImages.length;
-                        if (offset > Math.floor(planningImages.length / 2)) offset -= planningImages.length;
-
-                        if (offset === 0) {
-                            openImageArrayLightbox(planningImages, i);
-                        } else {
-                            carouselIndex = i;
-                            updateCarousel();
-                        }
+                        if (i === carouselIndex) openImageArrayLightbox(planningImages, i);
+                        else { carouselIndex = i; updateCarousel(); }
                     }
                 });
-                carouselContainer.appendChild(el);
+                container.appendChild(el);
                 carouselElements.push(el);
             });
             updateCarousel();
         }
 
         function updateCarousel() {
-            if (!carouselElements.length) return;
             carouselElements.forEach((el, i) => {
                 let offset = i - carouselIndex;
                 if (offset < -Math.floor(planningImages.length / 2)) offset += planningImages.length;
                 if (offset > Math.floor(planningImages.length / 2)) offset -= planningImages.length;
-
                 let leftPos = 50 + (offset * 14);
                 let scale = 1, zIndex = 30, opacity = 1;
-
                 if (offset === 0) { scale = 1; zIndex = 30; opacity = 1; } 
                 else if (Math.abs(offset) === 1) { scale = 0.85; zIndex = 20; opacity = 0.7; } 
                 else if (Math.abs(offset) === 2) { scale = 0.7; zIndex = 10; opacity = 0.4; } 
                 else { scale = 0.5; zIndex = 0; opacity = 0; }
-
                 el.style.left = `${leftPos}%`;
                 el.style.transform = `translate(-50%, -50%) scale(${scale})`;
                 el.style.zIndex = zIndex;
@@ -1042,51 +1015,94 @@
             });
         }
 
-        setInterval(() => {
-            if (!carouselPaused && !lightboxActive) {
-                carouselIndex = (carouselIndex + 1) % planningImages.length;
-                updateCarousel();
-            }
-        }, 3000);
-
-        const onCarouselDown = (x) => { carouselPaused = true; carouselStartX = x; carouselDragging = true; carouselMoved = false; };
-        const onCarouselMove = (x) => { 
-            if(carouselDragging && Math.abs(x - carouselStartX) > 10) {
-                carouselMoved = true;
-            } 
-        };
-        const onCarouselUp = (x) => {
-            if (!carouselDragging) return;
-            carouselDragging = false;
-            carouselPaused = false;
-            const diff = carouselStartX - x;
-            if (diff > 50) {
-                carouselIndex = (carouselIndex + 1) % planningImages.length;
-                updateCarousel();
-            } else if (diff < -50) {
-                carouselIndex = (carouselIndex - 1 + planningImages.length) % planningImages.length;
-                updateCarousel();
-            }
-        };
-
-        if(carouselContainer) {
-            carouselContainer.addEventListener('mouseenter', () => carouselPaused = true);
-            carouselContainer.addEventListener('mouseleave', () => carouselPaused = false);
-            carouselContainer.addEventListener('mousedown', e => onCarouselDown(e.clientX));
-            window.addEventListener('mousemove', e => onCarouselMove(e.clientX));
-            window.addEventListener('mouseup', e => onCarouselUp(e.clientX));
-            carouselContainer.addEventListener('touchstart', e => onCarouselDown(e.touches[0].clientX), {passive:true});
-            carouselContainer.addEventListener('touchmove', e => onCarouselMove(e.touches[0].clientX), {passive:true});
-            carouselContainer.addEventListener('touchend', e => onCarouselUp(e.changedTouches[0].clientX));
-            initCarousel();
+        // --- 初始化渲染 ---
+        function renderVideoGrid(containerId, videos, posters, isAi = false) {
+            const container = document.getElementById(containerId);
+            videos.forEach((src, index) => {
+                const card = document.createElement('div');
+                card.className = `video-card portrait`;
+                const title = isAi ? `AI视觉探索 ${(index + 1).toString().padStart(2,'0')}` : `时尚作品 ${(index + 1).toString().padStart(2,'0')}`;
+                const titleEn = isAi ? `AI Exploration ${(index + 1).toString().padStart(2,'0')}` : `Fashion Work ${(index + 1).toString().padStart(2,'0')}`;
+                card.innerHTML = `
+                    <div class="video-frame" onclick="openVideoLightbox('${src}')">
+                        <img src="${posters[index]}" alt="Poster">
+                        <div class="play-overlay"><i data-lucide="play" fill="currentColor"></i></div>
+                    </div>
+                    <div class="video-meta">
+                        <h3 data-zh="${title}" data-en="${titleEn}">${title}</h3>
+                        <p data-zh="9:16 | 竖屏视觉流" data-en="9:16 | Vertical Visual Stream">9:16 | 竖屏视觉流</p>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
         }
 
-        initMarquee('fashion-marquee-wrapper', 1.0);
-        document.addEventListener('DOMContentLoaded', updateContent);
-        document.addEventListener('keydown', e => {
-            if(e.key === 'Escape') { closeVideoLightbox(); closeLightbox(); }
-            if(e.key === 'ArrowLeft') { navLightbox(-1); }
-            if(e.key === 'ArrowRight') { navLightbox(1); }
+        function renderProductGrid() {
+            const container = document.getElementById('product-video-container');
+            const layout = ['four-three', 'portrait', 'four-three', 'three-four'];
+            productVideos.forEach((src, index) => {
+                const type = layout[index];
+                const ratio = type === 'portrait' ? '9:16' : (type === 'three-four' ? '3:4' : '16:9');
+                const label = (type === 'four-three' || type === 'landscape') ? "横屏展示" : "竖屏展示";
+                const labelEn = (type === 'four-three' || type === 'landscape') ? "Landscape" : "Portrait";
+                const card = document.createElement('div');
+                card.className = `video-card ${type}`;
+                card.innerHTML = `
+                    <div class="video-frame" onclick="openVideoLightbox('${src}')">
+                        <img src="${productPosters[index]}" alt="Poster">
+                        <div class="play-overlay"><i data-lucide="play" fill="currentColor"></i></div>
+                    </div>
+                    <div class="video-meta">
+                        <h3 data-zh="产品${label} ${(index+1).toString().padStart(2,'0')}" data-en="Product ${labelEn} ${(index+1).toString().padStart(2,'0')}">产品${label}</h3>
+                        <p data-zh="${ratio} | 动态美学" data-en="${ratio} | Dynamic Aesthetics">${ratio} | 动态美学</p>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderPhotoMarquee() {
+            const container = document.getElementById('fashion-photo-container');
+            const doublePhotos = [...fashionPhotoLinks, ...fashionPhotoLinks];
+            doublePhotos.forEach(src => {
+                const item = document.createElement('div');
+                item.className = 'marquee-item';
+                item.onclick = (e) => {
+                    if(!globalIsMoved) openImageArrayLightbox(fashionPhotoLinks, fashionPhotoLinks.indexOf(src) % fashionPhotoLinks.length);
+                };
+                item.innerHTML = `<img src="${src}" alt="Fashion Photo">`;
+                container.appendChild(item);
+            });
+        }
+
+        // --- 主程序入口 ---
+        document.addEventListener('DOMContentLoaded', () => {
+            renderVideoGrid('fashion-video-container', fashionVideos, fashionPosters);
+            renderVideoGrid('ai-video-container', aiVideos, aiPosters, true);
+            renderProductGrid();
+            renderPhotoMarquee();
+            
+            initCarousel();
+            initMarquee('fashion-marquee-wrapper', 1.0);
+            updateContent();
+
+            // 自动轮播
+            setInterval(() => {
+                if (!carouselPaused && !lightboxActive) {
+                    carouselIndex = (carouselIndex + 1) % planningImages.length;
+                    updateCarousel();
+                }
+            }, 3000);
+
+            // 英雄位点击
+            document.getElementById('hero-text-wrapper').addEventListener('click', function() { triggerFlash(this); });
+
+            // 键盘事件
+            document.addEventListener('keydown', e => {
+                if(e.key === 'Escape') { closeVideoLightbox(); closeLightbox(); }
+                if(e.key === 'ArrowLeft') navLightbox(-1);
+                if(e.key === 'ArrowRight') navLightbox(1);
+            });
         });
     </script>
 </body>
