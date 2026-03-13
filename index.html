@@ -316,6 +316,30 @@
         }
         #lightbox.active { display: flex; }
 
+        /* --- 轮播图与图集导航 --- */
+        .carousel-container {
+            position: relative; width: 100%; max-width: 1152px; margin: 0 auto;
+            height: 35vw; min-height: 250px; max-height: 500px;
+            user-select: none; touch-action: pan-y; transform: scale(1.15);
+        }
+        .carousel-item {
+            position: absolute; top: 50%; width: 65%; aspect-ratio: 16/9;
+            border-radius: 8px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            transition: left 0.5s ease-out, transform 0.5s ease-out, opacity 0.5s ease-out, z-index 0.5s ease-out;
+            cursor: pointer; border: 1px solid rgba(255,255,255,0.1);
+            transform-origin: center center;
+        }
+        .carousel-item img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+        .planning-desc { text-align: center; font-size: 0.9rem; color: var(--text-dim); max-width: 800px; margin: 0 auto; padding: 0 20px; line-height: 1.8; letter-spacing: 0.05em; }
+        
+        .lb-nav {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            color: rgba(255,255,255,0.5); cursor: pointer; padding: 20px; z-index: 2010; transition: color 0.3s;
+        }
+        .lb-nav:hover { color: #fff; }
+        .lb-prev { left: 2%; }
+        .lb-next { right: 2%; }
+
         /* --- 关于我板块 --- */
         .about-content { 
             display: grid; 
@@ -370,6 +394,9 @@
         @media (max-width: 768px) {
             :root { --v-height: var(--v-height-mobile); }
             
+            .carousel-container { height: 45vw; transform: scale(1); }
+            .carousel-item { width: 75%; }
+
             .hero h1 { text-indent: 0.5em; }
             .hero p { text-indent: 0.3em; font-size: 0.75rem; }
 
@@ -417,6 +444,7 @@
             <div class="nav-links">
                 <a href="#fashion-video" data-zh="时尚视频" data-en="FASHION VIDEO">时尚视频</a>
                 <a href="#fashion-photo" data-zh="时尚平面" data-en="FASHION PHOTO">时尚平面</a>
+                <a href="#planning" data-zh="全案策划" data-en="FULL-CASE PLANNING">全案策划</a>
                 <a href="#ai-video" data-zh="AI作品" data-en="AI WORKS">AI作品</a>
                 <a href="#product-video" data-zh="产品视频" data-en="PRODUCT VIDEO">产品视频</a>
                 <a href="#about" data-zh="关于我" data-en="ABOUT ME">关于我</a>
@@ -430,8 +458,10 @@
         <video id="lightbox-video" controls playsinline></video>
     </div>
 
-    <div id="lightbox" onclick="closeLightbox()">
+    <div id="lightbox" onclick="closeLightbox(event)">
+        <div class="lb-nav lb-prev" style="display:none;" onclick="navLightbox(-1, event)"><i data-lucide="chevron-left" size="48"></i></div>
         <img id="lightbox-img" src="" alt="预览图">
+        <div class="lb-nav lb-next" style="display:none;" onclick="navLightbox(1, event)"><i data-lucide="chevron-right" size="48"></i></div>
     </div>
 
     <section class="hero">
@@ -517,6 +547,21 @@
                     });
                 </script>
             </div>
+        </div>
+    </section>
+
+    <!-- 全案策划区 -->
+    <section id="planning" class="section" style="padding-bottom: 20px;">
+        <div class="section-header">
+            <div class="line"></div>
+            <h2 data-zh="全案策划 / FULL-CASE PLANNING" data-en="FULL-CASE PLANNING">全案策划 / FULL-CASE PLANNING</h2>
+            <div class="line"></div>
+        </div>
+        <div class="carousel-container" id="stacked-carousel">
+            <!-- JS 动态渲染轮播图 -->
+        </div>
+        <div style="display: flex; justify-content: center; margin-top: 4rem;">
+            <p class="planning-desc" id="planning-desc"></p>
         </div>
     </section>
 
@@ -657,8 +702,11 @@
     <script>
         const i18n = {
             zh: {
-                intro: `<p>本人深耕时尚摄像领域8年，具备成熟的商业拍摄经验与国际化审美。工作心态积极、责任心强，热爱突破创新，持续钻研前沿拍摄技术与 AI 影像工具。</p>
-                        <p>熟悉海内外时尚影像行业标准，可独立完成全流程工作。英语口语良好，有出国经历，适应力强，致力于将商业美学与前沿技术深度融合。</p>`,
+                intro: `<p>本人深耕商业视觉领域 8 年，从专业摄像执行逐步转向视觉策划与项目管理，具备成熟的商业内容创作经验、国际化审美与全流程项目把控能力。</p>
+                        <p>擅长品牌视觉调性把控、内容策略制定与影像全案策划，熟悉海内外时尚及泛商业影像行业标准，可独立主导从创意构思到成片交付的完整工作流。</p>
+                        <p>积极拥抱技术革新，持续钻研 AI 在视觉创作中的应用，运用 AI 工具辅助内容策划、构图优化与素材处理，提升创作效率与创意表达。</p>
+                        <p>具备优秀的跨团队沟通与项目统筹能力，英语口语流利，有海外拍摄经历，可快速适应海外项目与跨国团队协作。</p>`,
+                planningDesc: '以敏锐的商业嗅觉与前沿审美，提供从概念构思、视觉统筹到落地执行的品牌全案影像解决方案。',
                 skills: [
                     { icon: 'camera', title: '拍摄执行', desc: '精通各类主流摄像机操作，擅长多灯位布光设计与电影感画面构图。' },
                     { icon: 'cpu', title: 'AI 影像流', desc: '运用 Midjourney、Seedance 等工具辅助视觉策划、风格迁移及动态生成。' },
@@ -689,8 +737,11 @@
                 ]
             },
             en: {
-                intro: `<p>8 years of deep experience in fashion videography with a mature commercial eye and international aesthetic. Proactive, responsible, and passionate about innovation, continuously exploring cutting-edge filming technologies and AI visual tools.</p>
-                        <p>Well-versed in global fashion industry standards. Capable of handling end-to-end production. Fluent in English with international experience, dedicated to merging commercial aesthetics with emerging tech.</p>`,
+                intro: `<p>I have been deeply engaged in the commercial visual field for 8 years, transitioning from professional cinematography to visual planning and project management, with mature commercial content creation experience, international aesthetics, and full-process project control capabilities.</p>
+                        <p>Adept at brand visual tone control, content strategy formulation, and full-case video planning. Familiar with domestic and international fashion and pan-commercial video industry standards, capable of independently leading the complete workflow from creative conception to final delivery.</p>
+                        <p>Actively embracing technological innovation, continuously delving into the application of AI in visual creation, using AI tools to assist in content planning, composition optimization, and material processing, enhancing creative efficiency and expression.</p>
+                        <p>Possess excellent cross-team communication and project coordination skills, fluent in spoken English, with overseas shooting experience, able to quickly adapt to overseas projects and multinational team collaboration.</p>`,
+                planningDesc: 'Providing end-to-end brand visual solutions from conceptualization and visual coordination to execution, driven by keen business acumen and cutting-edge aesthetics.',
                 skills: [
                     { icon: 'camera', title: 'Cinematography', desc: 'Expertise in high-end cinema camera operation, lighting design, and cinematic composition.' },
                     { icon: 'cpu', title: 'AI Visual Workflow', desc: 'Using Midjourney and Seedance for visual planning, style transfer, and generative motion.' },
@@ -733,6 +784,8 @@
             });
             const data = i18n[currentLang];
             document.getElementById('about-intro').innerHTML = data.intro;
+            const planningDescEl = document.getElementById('planning-desc');
+            if(planningDescEl) planningDescEl.innerText = data.planningDesc;
             document.getElementById('skills-container').innerHTML = data.skills.map(s => `
                 <div class="skill-box">
                     <h4><i data-lucide="${s.icon}" size="14"></i> ${s.title}</h4>
@@ -785,6 +838,8 @@
         const lb = document.getElementById('lightbox');
         const lbImg = document.getElementById('lightbox-img');
         let lightboxActive = false;
+        let lbImagesArray = [];
+        let lbCurrentIndex = 0;
 
         function openLightbox(src) {
             if (!src) return;
@@ -794,9 +849,31 @@
             lightboxActive = true;
             setTimeout(() => lb.classList.add('active'), 10);
             document.body.style.overflow = 'hidden';
+            
+            document.querySelector('.lb-prev').style.display = 'none';
+            document.querySelector('.lb-next').style.display = 'none';
         }
 
-        function closeLightbox() {
+        function openImageArrayLightbox(images, index) {
+            lbImagesArray = images;
+            lbCurrentIndex = index;
+            openLightbox(images[index]);
+            
+            if(images.length > 1) {
+                document.querySelector('.lb-prev').style.display = 'flex';
+                document.querySelector('.lb-next').style.display = 'flex';
+            }
+        }
+
+        function navLightbox(dir, event) {
+            if(event) event.stopPropagation();
+            if(lbImagesArray.length <= 1) return;
+            lbCurrentIndex = (lbCurrentIndex + dir + lbImagesArray.length) % lbImagesArray.length;
+            lbImg.src = lbImagesArray[lbCurrentIndex];
+        }
+
+        function closeLightbox(event) {
+            if (event && event.target.closest('.lb-nav')) return; // 忽略点击两侧箭头
             if (!lightboxActive) return;
             lb.classList.remove('active');
             document.documentElement.style.setProperty('--marquee-speed', '1');
@@ -804,19 +881,51 @@
             setTimeout(() => {
                 lb.style.display = 'none';
                 lbImg.src = '';
+                lbImagesArray = [];
             }, 300);
             document.body.style.overflow = 'auto';
         }
 
+        let lbStartX = 0;
+        let lbIsDragging = false;
+        lb.addEventListener('mousedown', e => { lbStartX = e.clientX; lbIsDragging = true; });
+        window.addEventListener('mouseup', e => {
+            if (lightboxActive && lbIsDragging) {
+                lbIsDragging = false;
+                let diff = lbStartX - e.clientX;
+                if (diff > 50) navLightbox(1);
+                else if (diff < -50) navLightbox(-1);
+            }
+        });
+        lb.addEventListener('touchstart', e => { lbStartX = e.touches[0].clientX; lbIsDragging = true; }, {passive: true});
+        lb.addEventListener('touchend', e => {
+            if (lightboxActive && lbIsDragging) {
+                lbIsDragging = false;
+                let diff = lbStartX - e.changedTouches[0].clientX;
+                if (diff > 50) navLightbox(1);
+                else if (diff < -50) navLightbox(-1);
+            }
+        });
+
         let globalIsMoved = false;
+
         function onItemClick(el, e) {
             if (globalIsMoved) return;
-            openLightbox(el.getAttribute('data-full'));
+            const src = el.getAttribute('data-full');
+            if (typeof allFashionPhotos !== 'undefined') {
+                 const idx = allFashionPhotos.indexOf(src);
+                 if(idx !== -1) openImageArrayLightbox(allFashionPhotos, idx);
+                 else openLightbox(src);
+            } else {
+                 openLightbox(src);
+            }
         }
 
         function initMarquee(wrapperId, baseSpeed) {
             const wrapper = document.getElementById(wrapperId);
+            if (!wrapper) return;
             const content = wrapper.querySelector('.marquee-content');
+            if (!content) return;
             let x = 0; 
             let isDragging = false, startX = 0;
 
@@ -859,10 +968,125 @@
             window.addEventListener('touchend', onEnd);
         }
         
+        // --- 全案策划 轮播图逻辑 ---
+        const planningImages = [
+            "https://bsyimg.luoca.net/imgtc/20260313/998590e254eed9ce42575b63b6f06403.webp",
+            "https://bsyimg.luoca.net/imgtc/20260313/aa791cfe45bbfa724481803ef71876d0.webp",
+            "https://bsyimg.luoca.net/imgtc/20260313/ca833cd3b75846dcdfd51269377e5209.webp",
+            "https://bsyimg.luoca.net/imgtc/20260313/98dec6a0e231ae48a831e726cbce8bcb.webp",
+            "https://bsyimg.luoca.net/imgtc/20260313/c5e5fb730ebc2b9c18347ace821bf831.png",
+            "https://bsyimg.luoca.net/imgtc/20260313/e2364a181954062b8bcc9d4ae90e1e4c.webp"
+        ];
+        
+        let carouselIndex = 0;
+        let carouselPaused = false;
+        const carouselContainer = document.getElementById('stacked-carousel');
+        let carouselElements = [];
+        let carouselDragging = false;
+        let carouselStartX = 0;
+        let carouselMoved = false;
+
+        function initCarousel() {
+            if(!carouselContainer) return;
+            carouselContainer.innerHTML = '';
+            planningImages.forEach((src, i) => {
+                const el = document.createElement('div');
+                el.className = 'carousel-item';
+                
+                const img = document.createElement('img');
+                img.src = src;
+                img.ondragstart = () => false;
+                el.appendChild(img);
+
+                el.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (!carouselMoved) {
+                        let offset = i - carouselIndex;
+                        if (offset < -Math.floor(planningImages.length / 2)) offset += planningImages.length;
+                        if (offset > Math.floor(planningImages.length / 2)) offset -= planningImages.length;
+
+                        if (offset === 0) {
+                            openImageArrayLightbox(planningImages, i);
+                        } else {
+                            carouselIndex = i;
+                            updateCarousel();
+                        }
+                    }
+                });
+                carouselContainer.appendChild(el);
+                carouselElements.push(el);
+            });
+            updateCarousel();
+        }
+
+        function updateCarousel() {
+            if (!carouselElements.length) return;
+            carouselElements.forEach((el, i) => {
+                let offset = i - carouselIndex;
+                if (offset < -Math.floor(planningImages.length / 2)) offset += planningImages.length;
+                if (offset > Math.floor(planningImages.length / 2)) offset -= planningImages.length;
+
+                let leftPos = 50 + (offset * 14);
+                let scale = 1, zIndex = 30, opacity = 1;
+
+                if (offset === 0) { scale = 1; zIndex = 30; opacity = 1; } 
+                else if (Math.abs(offset) === 1) { scale = 0.85; zIndex = 20; opacity = 0.7; } 
+                else if (Math.abs(offset) === 2) { scale = 0.7; zIndex = 10; opacity = 0.4; } 
+                else { scale = 0.5; zIndex = 0; opacity = 0; }
+
+                el.style.left = `${leftPos}%`;
+                el.style.transform = `translate(-50%, -50%) scale(${scale})`;
+                el.style.zIndex = zIndex;
+                el.style.opacity = opacity;
+                el.style.pointerEvents = opacity === 0 ? 'none' : 'auto';
+            });
+        }
+
+        setInterval(() => {
+            if (!carouselPaused && !lightboxActive) {
+                carouselIndex = (carouselIndex + 1) % planningImages.length;
+                updateCarousel();
+            }
+        }, 3000);
+
+        const onCarouselDown = (x) => { carouselPaused = true; carouselStartX = x; carouselDragging = true; carouselMoved = false; };
+        const onCarouselMove = (x) => { 
+            if(carouselDragging && Math.abs(x - carouselStartX) > 10) {
+                carouselMoved = true;
+            } 
+        };
+        const onCarouselUp = (x) => {
+            if (!carouselDragging) return;
+            carouselDragging = false;
+            carouselPaused = false;
+            const diff = carouselStartX - x;
+            if (diff > 50) {
+                carouselIndex = (carouselIndex + 1) % planningImages.length;
+                updateCarousel();
+            } else if (diff < -50) {
+                carouselIndex = (carouselIndex - 1 + planningImages.length) % planningImages.length;
+                updateCarousel();
+            }
+        };
+
+        if(carouselContainer) {
+            carouselContainer.addEventListener('mouseenter', () => carouselPaused = true);
+            carouselContainer.addEventListener('mouseleave', () => carouselPaused = false);
+            carouselContainer.addEventListener('mousedown', e => onCarouselDown(e.clientX));
+            window.addEventListener('mousemove', e => onCarouselMove(e.clientX));
+            window.addEventListener('mouseup', e => onCarouselUp(e.clientX));
+            carouselContainer.addEventListener('touchstart', e => onCarouselDown(e.touches[0].clientX), {passive:true});
+            carouselContainer.addEventListener('touchmove', e => onCarouselMove(e.touches[0].clientX), {passive:true});
+            carouselContainer.addEventListener('touchend', e => onCarouselUp(e.changedTouches[0].clientX));
+            initCarousel();
+        }
+
         initMarquee('fashion-marquee-wrapper', 1.0);
         document.addEventListener('DOMContentLoaded', updateContent);
         document.addEventListener('keydown', e => {
             if(e.key === 'Escape') { closeVideoLightbox(); closeLightbox(); }
+            if(e.key === 'ArrowLeft') { navLightbox(-1); }
+            if(e.key === 'ArrowRight') { navLightbox(1); }
         });
     </script>
 </body>
