@@ -73,7 +73,6 @@
         .lang-switch:hover { background: var(--primary); color: #000; }
         .lang-switch:active { transform: scale(0.95); opacity: 0.7; }
 
-        /* 移动端导航栏高度缩减 + 元素逆向放大版 */
         @media (max-width: 768px) {
             nav {
                 flex-direction: column; 
@@ -140,7 +139,7 @@
 
         #hero-text-wrapper {
             cursor: pointer;
-            width: fit-content;
+            width: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -149,15 +148,14 @@
         
         .hero-animated-title, .hero-animated-subtitle {
             position: relative;
-            width: 100%;
             text-align: center;
         }
 
         .hero-animated-title {
-            font-size: clamp(2.5rem, 10vw, 4.5rem); 
+            font-size: clamp(3rem, 12vw, 5.4rem); 
             letter-spacing: 0.28em; 
             margin-right: -0.28em; 
-            margin-bottom: 20px; 
+            margin-bottom: 24px; 
             font-weight: 300;
             color: transparent; 
             white-space: nowrap;
@@ -165,18 +163,16 @@
 
         .hero-animated-subtitle {
             color: transparent; 
+            font-size: 1.0rem; 
             letter-spacing: 0.17em; 
-            margin-right: -0.17em; 
-            font-size: 0.9rem; 
+            margin-right: -0.17em;
             text-transform: uppercase;
-            /* 修改：移除 white-space: nowrap; 解决硬锁定问题 */
-            /* 增加：使用 inline-block 和 max-content 确保在宽度足够时不自动换行（解决末尾字符偏移 Bug） */
-            display: inline-block;
-            width: max-content;
-            max-width: 95vw; /* 确保极窄屏幕下不会溢出 */
+            display: block;
+            width: auto;
+            max-width: 90%; 
+            line-height: 1.8;
         }
 
-        /* 极致异步动画逻辑 */
         .flicker-char {
             display: inline-block;
             opacity: 0;
@@ -385,6 +381,7 @@
             transform-origin: center center;
         }
         .carousel-item img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+        .planning-text-wrapper { display: flex; justify-content: center; margin-top: 4rem; }
         .planning-desc { text-align: center; font-size: 0.9rem; color: var(--text-dim); max-width: 800px; margin: 0 auto; padding: 0 20px; line-height: 1.8; letter-spacing: 0.05em; }
         
         .lb-nav {
@@ -449,8 +446,17 @@
         @media (max-width: 768px) {
             :root { --v-height: var(--v-height-mobile); }
             
-            .hero-animated-title { text-indent: 0; }
-            .hero-animated-subtitle { text-indent: 0; font-size: 0.75rem; }
+            .hero-animated-title { 
+                font-size: clamp(2.8rem, 11vw, 4rem); 
+                margin-right: -0.28em; 
+                text-indent: 0;
+            }
+            .hero-animated-subtitle { 
+                font-size: 0.8rem; 
+                margin-right: -0.17em;
+                text-indent: 0;
+                line-height: 1.6;
+            }
 
             .section-header h2 { font-size: 1.05rem; letter-spacing: 0.05em; font-weight: 500; }
             .section-header { justify-content: center; gap: 10px; margin-bottom: 30px; }
@@ -463,6 +469,26 @@
                 flex-grow: 1;
                 max-width: 20%; 
                 min-width: 20px; 
+            }
+
+            /* 修改：解决全案策划在移动端高度过大的问题 */
+            #planning { 
+                padding-top: 30px; 
+                padding-bottom: 0; /* 取消底部 padding */
+            }
+            #planning .carousel-container {
+                transform: scale(1.38);
+                height: 25vw; /* 缩减容器高度比例 */
+                min-height: 160px; /* 缩减最小物理高度 */
+                margin: 0 auto; 
+            }
+            .planning-text-wrapper {
+                margin-top: 2.5rem !important; /* 文字往下挪，拉开与上方图片的距离 */
+                margin-bottom: -15px; /* 利用负边距大幅缩减文案下方与下一个板块的空白区域 */
+            }
+            #planning .planning-desc {
+                margin-top: 0; /* 移除冗余外边距 */
+                line-height: 1.5; /* 适度收紧行高，减少内部纵向空间 */
             }
 
             .video-frame { height: var(--v-height-mobile) !important; }
@@ -559,7 +585,7 @@
         <div class="carousel-container" id="stacked-carousel">
             <!-- JS 动态渲染轮播图 -->
         </div>
-        <div style="display: flex; justify-content: center; margin-top: 4rem;">
+        <div class="planning-text-wrapper">
             <p class="planning-desc" id="planning-desc"></p>
         </div>
     </section>
@@ -927,7 +953,6 @@
             document.body.style.overflow = 'auto';
         }
 
-        // --- 跑马灯 ---
         function initMarquee(wrapperId, baseSpeed) {
             const wrapper = document.getElementById(wrapperId);
             const content = wrapper.querySelector('.marquee-content');
@@ -946,7 +971,6 @@
                 requestAnimationFrame(animate);
             }
             window.addEventListener('load', () => { x = 0; animate(); });
-
             const onStart = (clientX) => { isDragging = true; globalIsMoved = false; startX = clientX; };
             const onMove = (clientX) => {
                 if (!isDragging) return;
@@ -966,7 +990,6 @@
             window.addEventListener('touchend', () => isDragging = false);
         }
 
-        // --- 堆叠轮播图 ---
         let carouselIndex = 0;
         let carouselPaused = false;
         let carouselDragging = false;
@@ -1015,7 +1038,6 @@
             });
         }
 
-        // --- 初始化渲染 ---
         function renderVideoGrid(containerId, videos, posters, isAi = false) {
             const container = document.getElementById(containerId);
             videos.forEach((src, index) => {
@@ -1081,23 +1103,16 @@
             renderVideoGrid('ai-video-container', aiVideos, aiPosters, true);
             renderProductGrid();
             renderPhotoMarquee();
-            
             initCarousel();
             initMarquee('fashion-marquee-wrapper', 1.0);
             updateContent();
-
-            // 自动轮播
             setInterval(() => {
                 if (!carouselPaused && !lightboxActive) {
                     carouselIndex = (carouselIndex + 1) % planningImages.length;
                     updateCarousel();
                 }
             }, 3000);
-
-            // 英雄位点击
             document.getElementById('hero-text-wrapper').addEventListener('click', function() { triggerFlash(this); });
-
-            // 键盘事件
             document.addEventListener('keydown', e => {
                 if(e.key === 'Escape') { closeVideoLightbox(); closeLightbox(); }
                 if(e.key === 'ArrowLeft') navLightbox(-1);
